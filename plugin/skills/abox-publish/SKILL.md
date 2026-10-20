@@ -1,11 +1,11 @@
 ---
-name: publish
-description: Publishes and manages HTML/Markdown artifacts on the user's local Artifact Box server with the `abox` CLI, replacing the claude.ai Artifact tool. Use this skill — not the Artifact tool — whenever the user asks to publish, upload, share or get a link to an HTML or Markdown page, even if they never mention abox or Artifact Box, e.g. "게시해 줘", "아티팩트로 올려 줘", "HTML로 만들어서 링크로 줘", "링크로 공유해 줘", "7일 동안 공개해 줘", "publish this as an artifact". Also use it to update, unshare, list, inspect, roll back or delete a published page ("고쳐서 다시 올려 줘", "공개 내려 줘", "게시한 거 목록 보여 줘", "이전 버전으로 되돌려 줘"). Also use it to publish with a template the user names ("주간 보고 템플릿으로 게시해 줘") and to update artifacts made from a template; making or changing templates is the artifact-box:template skill. Load it before publishing even when artifact-design is already loaded for the design. Skip it only when the user explicitly asks for a claude.ai artifact.
+name: abox-publish
+description: Publishes and manages HTML/Markdown artifacts on Artifact Box (artifactbox.app) with the `abox` CLI, replacing the claude.ai Artifact tool. Use this skill — not the Artifact tool — whenever the user asks to publish, upload, share or get a link to an HTML or Markdown page, even if they never mention abox or Artifact Box, e.g. "게시해 줘", "아티팩트로 올려 줘", "HTML로 만들어서 링크로 줘", "링크로 공유해 줘", "7일 동안 공개해 줘", "publish this as an artifact". Also use it to update, unshare, list, inspect, roll back or delete a published page ("고쳐서 다시 올려 줘", "공개 내려 줘", "게시한 거 목록 보여 줘", "이전 버전으로 되돌려 줘"). Also use it to publish with a template the user names ("주간 보고 템플릿으로 게시해 줘") and to update artifacts made from a template; making or changing templates is the abox-template skill. Load it before publishing even when artifact-design is already loaded for the design. Skip it only when the user explicitly asks for a claude.ai artifact.
 ---
 
 # Artifact Box 게시
 
-Artifact Box는 HTML·Markdown 파일을 게시하고, 아티팩트마다 공개 여부·기간을 정하고, 프로젝트별로 모아 두는 서비스다. 아티팩트는 워크스페이스(개인·팀)에 속하고, 팀 워크스페이스의 아티팩트는 비공개여도 그 팀 멤버 모두가 본다. 등록된 템플릿(스키마 + 화면)에 데이터 JSON을 넣어 게시할 수도 있다. 게시·공유·목록·버전 관리는 모두 `abox` CLI로 하고, `abox`는 설정된 Artifact Box 서버에 붙는다. 서버 주소·실행 방법은 CLI가 맡으므로 이 문서는 다루지 않는다. 이 플러그인을 켜면 `abox`가 Bash에서 바로 실행된다.
+Artifact Box는 HTML·Markdown 파일을 게시하고, 아티팩트마다 공개 여부·기간을 정하고, 프로젝트별로 모아 두는 서비스다. 아티팩트는 워크스페이스(개인·팀)에 속하고, 팀 워크스페이스의 아티팩트는 비공개여도 그 팀 멤버 모두가 본다. 등록된 템플릿(스키마 + 화면)에 데이터 JSON을 넣어 게시할 수도 있다. 게시·공유·목록·버전 관리는 모두 `abox` CLI로 하고, `abox`는 설정된 Artifact Box 서버에 붙는다. 서버 주소·실행 방법은 CLI가 맡으므로 이 문서는 다루지 않는다. 플러그인으로 설치했으면 `abox`가 Bash에서 바로 실행되고, 스킬만 설치했으면 사용자가 `abox`를 따로 설치한다(아래 'abox가 없을 때').
 
 ## 기본 규칙
 
@@ -19,8 +19,20 @@ Artifact Box는 HTML·Markdown 파일을 게시하고, 아티팩트마다 공개
 - `abox` 명령은 한 번에 하나씩 실행한다. `;`·`&&`·`$(…)`로 다른 명령과 묶지 않는다(권한 규칙 `Bash(abox *)`만 허용된 세션에서는 묶은 명령이 거부된다).
 - 게시는 항상 **비공개**로 시작한다. **공개(`share`)·삭제(`rm`)는 사용자가 명시적으로 요청할 때만** 한다.
 - **로그인은 사용자가 직접 한다.** `abox login`·`abox logout`은 어떤 옵션으로도 실행하지 않는다. exit 3이면 아래 '로그인이 필요할 때'대로 안내하고 멈춘다.
+- **`abox` 설치·업데이트도 사용자가 한다.** 설치 스크립트와 `abox update`를 실행하지 않는다. `abox`가 없으면 아래 'abox가 없을 때'대로 안내하고 멈춘다. `CLI_UPDATE_AVAILABLE` 경고는 고칠 대상이 아니라 `message`만 전한다. 사용자가 업데이트해 달라고 하면 터미널에서 `abox update`를 실행하라고 안내한다.
 - **워크스페이스는 사용자가 말할 때만 고른다**(아래 '워크스페이스'). 말하지 않으면 `--workspace` 없이 기본 워크스페이스에 게시한다.
 - 결과의 `warnings`는 이 문서에 없는 코드라도 `message`를 사용자에게 그대로 전한다. 환경에 따른 안내(서버·URL 접근 등)는 CLI가 경고와 `hint`로 알려 준다.
+
+## abox가 없을 때 (command not found, exit 127)
+
+아래 문장을 사용자에게 그대로 전하고 지금 작업을 멈춘다. 만들어 둔 파일은 그대로 두고, 사용자가 설치했다고 하면 멈춘 명령부터 다시 실행한다.
+
+```
+Artifact Box CLI(abox)가 설치돼 있지 않아요. 터미널에서 아래 명령으로 설치해 주세요(Node.js 24 이상 필요).
+  curl -fsSL https://artifactbox.app/install.sh | sh
+이미 설치했다면 ~/.local/bin 폴더가 PATH에 있는지 확인해 주세요.
+설치한 뒤 다시 요청해 주세요.
+```
 
 ## 로그인이 필요할 때 (exit 3)
 
@@ -29,7 +41,7 @@ Artifact Box는 HTML·Markdown 파일을 게시하고, 아티팩트마다 공개
 ```
 Artifact Box 로그인이 필요해요. 아래 명령으로 로그인해 주세요.
   ! abox login
-주소와 코드가 나오면 브라우저에서 Google로 로그인하고 코드를 확인해 승인해 주세요.
+주소가 나오면 브라우저에서 열어 Google로 로그인하고 승인해 주세요.
 원격 서버라면 그 주소를 아무 기기의 브라우저에서 열면 돼요.
 ```
 
@@ -129,7 +141,7 @@ URL을 모르면 `abox ls --project <프로젝트> --json`(디렉토리로는 `-
 
 ## 템플릿으로 게시
 
-템플릿은 스키마 + 화면 + 샘플 데이터를 묶은 틀이다. 템플릿으로 게시할 때는 HTML을 만들지 않고 스키마에 맞춘 데이터 JSON만 쓴다. 템플릿을 만들거나 고치는 일은 `artifact-box:template` 스킬이 맡는다.
+템플릿은 스키마 + 화면 + 샘플 데이터를 묶은 틀이다. 템플릿으로 게시할 때는 HTML을 만들지 않고 스키마에 맞춘 데이터 JSON만 쓴다. 템플릿을 만들거나 고치는 일은 `abox-template` 스킬이 맡는다.
 
 - 사용자가 템플릿을 쓰라고 할 때만 쓴다("주간 보고 템플릿으로 게시해 줘", "weekly-report 템플릿으로 이번 주 보고 올려 줘").
 - 템플릿의 필드는 이 문서에 없다. 쓸 때마다 서버에서 조회한다.
@@ -203,7 +215,7 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 | 2    | 사용법·필수 누락(`MISSING_REQUIRED`의 `missing`), 지원하지 않는 종류, `SECRET_FILE`, `NO_ENTRY`               | 입력을 고쳐 다시 실행                                                                                                                                                                                                |
 | 2    | 같은 이름의 워크스페이스가 여럿(`error.candidates`)                                                           | 후보를 보여 주고 고르게 한 뒤 `--workspace <id>`로 다시 실행('워크스페이스')                                                                                                                                         |
 | 2    | `DATA_INVALID`: 데이터가 템플릿 스키마와 맞지 않음                                                            | `issues`대로 데이터를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다('템플릿으로 게시')                                                                                                                      |
-| 2    | `TEMPLATE_INVALID`: 템플릿 등록 실패                                                                          | 템플릿 폴더 문제다. `artifact-box:template` 스킬로 처리                                                                                                                                                              |
+| 2    | `TEMPLATE_INVALID`: 템플릿 등록 실패                                                                          | 템플릿 폴더 문제다. `abox-template` 스킬로 처리                                                                                                                                                                      |
 | 3    | 로그인 필요(`AUTH_REQUIRED`): 로그인한 적 없음, 토큰 만료·끊김                                                | `abox login`을 실행하지 않고 '로그인이 필요할 때'의 문장을 안내한 뒤 멈춘다                                                                                                                                          |
 | 4    | URL·버전·템플릿·프로젝트·미리 만든 태그 없음                                                                  | URL을 확인하거나 `abox ls`로, 템플릿은 `abox template ls`, 프로젝트는 `abox project ls`, 태그는 `abox tag ls`로 찾기                                                                                                 |
 | 4    | 워크스페이스 없음, 또는 기본 워크스페이스를 더 쓸 수 없음(`error.defaultWorkspace`: 내보내졌거나 팀이 지워짐) | 목록은 `abox workspace ls`. 기본값이 끊겼으면 기본값을 되돌리는 `abox workspace use 개인`을 안내하고(직접 실행하지 않는다), 이번 게시를 어디에 할지 묻는다. 사용자가 고르면 그 워크스페이스를 `--workspace`로 넘긴다 |
@@ -216,4 +228,4 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 ## 참고
 
 - JSON 응답 형태와 예시(데이터 게시·`pull`·`DATA_INVALID` 포함): **`references/json-output.md`**
-- 템플릿 만들기·고치기·삭제: **`artifact-box:template`** 스킬
+- 템플릿 만들기·고치기·삭제: **`abox-template`** 스킬

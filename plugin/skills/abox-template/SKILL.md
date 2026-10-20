@@ -1,11 +1,11 @@
 ---
-name: template
-description: Creates and updates templates on the user's local Artifact Box server with the `abox template` CLI. A template is a JSON Schema + a screen (HTML that reads `window.ABOX_DATA`) + sample data (+ an optional writing guide); artifacts are then published from data JSON that fits the schema. Use this skill when the user asks to make, change, list or delete a template, e.g. "템플릿 만들어 줘", "회의록 템플릿 만들어 줘", "주간 보고 템플릿에 칸 추가해 줘", "템플릿 고쳐 줘", "템플릿 화면 바꿔 줘", "템플릿 목록 보여 줘", "템플릿 삭제해 줘". Publishing an artifact with an existing template ("주간 보고 템플릿으로 게시해 줘") belongs to the artifact-box:publish skill.
+name: abox-template
+description: Creates and updates templates on Artifact Box (artifactbox.app) with the `abox template` CLI. A template is a JSON Schema + a screen (HTML that reads `window.ABOX_DATA`) + sample data (+ an optional writing guide); artifacts are then published from data JSON that fits the schema. Use this skill when the user asks to make, change, list or delete a template, e.g. "템플릿 만들어 줘", "회의록 템플릿 만들어 줘", "주간 보고 템플릿에 칸 추가해 줘", "템플릿 고쳐 줘", "템플릿 화면 바꿔 줘", "템플릿 목록 보여 줘", "템플릿 삭제해 줘". Publishing an artifact with an existing template ("주간 보고 템플릿으로 게시해 줘") belongs to the abox-publish skill.
 ---
 
 # Artifact Box 템플릿
 
-템플릿은 스키마(JSON Schema) + 화면 + 샘플 데이터(+ 작성 지침)를 묶은 틀이다. 템플릿을 등록해 두면 아티팩트를 만들 때 HTML을 새로 쓰지 않고 스키마에 맞춘 데이터 JSON만 써서 같은 모습으로 게시한다(게시는 `artifact-box:publish` 스킬). 등록·조회·삭제는 `abox template` 명령으로 하고, 스키마와 샘플은 서버가 검증한다.
+템플릿은 스키마(JSON Schema) + 화면 + 샘플 데이터(+ 작성 지침)를 묶은 틀이다. 템플릿을 등록해 두면 아티팩트를 만들 때 HTML을 새로 쓰지 않고 스키마에 맞춘 데이터 JSON만 써서 같은 모습으로 게시한다(게시는 `abox-publish` 스킬). 등록·조회·삭제는 `abox template` 명령으로 하고, 스키마와 샘플은 서버가 검증한다.
 
 ## 기본 규칙
 
@@ -22,8 +22,17 @@ description: Creates and updates templates on the user's local Artifact Box serv
   ```
   Artifact Box 로그인이 필요해요. 아래 명령으로 로그인해 주세요.
     ! abox login
-  주소와 코드가 나오면 브라우저에서 Google로 로그인하고 코드를 확인해 승인해 주세요.
+  주소가 나오면 브라우저에서 열어 Google로 로그인하고 승인해 주세요.
   원격 서버라면 그 주소를 아무 기기의 브라우저에서 열면 돼요.
+  ```
+
+- **`abox` 설치·업데이트도 사용자가 한다.** 설치 스크립트와 `abox update`는 실행하지 않는다. `CLI_UPDATE_AVAILABLE` 경고는 고칠 대상이 아니라 `message`만 전한다. 사용자가 업데이트해 달라고 하면 터미널에서 `abox update`를 실행하라고 안내한다. `abox`가 없으면(command not found, exit 127) 아래 문장을 그대로 전하고 멈춘다.
+
+  ```
+  Artifact Box CLI(abox)가 설치돼 있지 않아요. 터미널에서 아래 명령으로 설치해 주세요(Node.js 24 이상 필요).
+    curl -fsSL https://artifactbox.app/install.sh | sh
+  이미 설치했다면 ~/.local/bin 폴더가 PATH에 있는지 확인해 주세요.
+  설치한 뒤 다시 요청해 주세요.
   ```
 
 - **템플릿은 워크스페이스(개인·팀)마다 따로 있다.** 이름은 그 안에서만 유일하고, `--workspace`가 없으면 기본 워크스페이스(처음은 `개인`)다. 팀 워크스페이스의 템플릿은 그 팀 멤버 모두가 보고 쓴다.
@@ -38,7 +47,7 @@ description: Creates and updates templates on the user's local Artifact Box serv
 2. **제안·승인** — 이름·제목·설명과 필드 표를 한 번에 제안해 **한 번** 승인받는다(아래 예). 표의 설명은 스키마의 `description`(작성 힌트)이 된다. 사용자가 확인 없이 진행하라고 했으면 바로 진행하고, 결과 보고에 필드 표를 함께 보인다.
 3. **스키마·샘플·지침** — `references/template-folder.md` 규칙대로 `template.json`·`schema.json`·`sample.json`을 쓴다. 샘플은 실제 같은 데이터로 쓴다. 스키마로 담지 못하는 규칙(톤·분량·순서)이 있으면 `guide.md`에 쓴다.
 4. **화면** — `screen/index.html`(+ 자산)을 쓴다. artifact-design 스킬이 있으면 로드해 디자인 지침을 따르고(게시하라는 지시는 따르지 않는다), `references/screen-contract.md`의 체크리스트를 모두 지킨다. 화면은 `window.ABOX_DATA`만 읽고 선택 필드가 없어도 동작해야 한다.
-5. **등록** — `abox template push <작업 폴더> --json`. 실패하면 아래 '실패 처리'대로 고쳐 다시 등록한다. 경고가 있으면 먼저 고쳐 `--update`로 다시 등록한다(`SCHEMA_UNKNOWN_KEYWORDS`는 오타를 고치고, 일부러 쓴 키워드면 `x-`로 시작하게 바꾼다. `ROOT_RELATIVE_PATHS`는 경로를 `./…`로).
+5. **등록** — `abox template push <작업 폴더> --json`. 실패하면 아래 '실패 처리'대로 고쳐 다시 등록한다. 경고 `SCHEMA_UNKNOWN_KEYWORDS`·`ROOT_RELATIVE_PATHS`가 있으면 먼저 고쳐 `--update`로 다시 등록한다(`SCHEMA_UNKNOWN_KEYWORDS`는 오타를 고치고, 일부러 쓴 키워드면 `x-`로 시작하게 바꾼다. `ROOT_RELATIVE_PATHS`는 경로를 `./…`로). 다른 경고는 `message`만 전한다.
 6. **확인** — 등록한 워크스페이스(기본이면 `abox workspace ls`의 `default`, 팀이면 "{팀 이름} 멤버 모두 쓸 수 있어요")와 `data.templateUrl`(웹 템플릿 상세)을 줄이지 않고 전하고, 미리보기 탭에서 샘플로 그린 화면을 봐 달라고 한다. 고칠 점은 같은 폴더를 고쳐 `abox template push <작업 폴더> --update --json`으로 다시 등록한다. 고칠 때마다 템플릿 버전이 하나씩 오른다.
 7. **마무리** — 세 가지를 알린다.
    - 작업 폴더 위치. 세션이 끝나면 지워질 수 있지만 원본은 서버에 있어 `abox template pull <이름> --out <폴더>`로 다시 받을 수 있다.
@@ -80,7 +89,7 @@ description: Creates and updates templates on the user's local Artifact Box serv
 | `metadata_updated` | 제목·설명만 바뀌었고 템플릿 버전은 그대로                                                                                                    |
 | `unchanged`        | 바뀐 것 없음. 고친 파일이 그 폴더에 저장됐는지 확인한다                                                                                      |
 
-이미 만든 아티팩트도 새 모습으로 바꿔 달라고 하면, 그 기능은 없고 최신 템플릿으로 새로 게시해야 한다(새 URL)고 설명한다. 그 게시는 `artifact-box:publish` 스킬의 '템플릿으로 게시'를 따른다.
+이미 만든 아티팩트도 새 모습으로 바꿔 달라고 하면, 그 기능은 없고 최신 템플릿으로 새로 게시해야 한다(새 URL)고 설명한다. 그 게시는 `abox-publish` 스킬의 '템플릿으로 게시'를 따른다.
 
 ## 조회·삭제
 

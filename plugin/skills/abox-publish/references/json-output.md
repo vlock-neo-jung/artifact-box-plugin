@@ -276,8 +276,8 @@
   "ok": false,
   "error": {
     "code": "NETWORK_ERROR",
-    "message": "서버에 연결하지 못했어요: http://localhost:8013",
-    "hint": "로컬 서버가 떠 있는지 확인해 주세요."
+    "message": "서버에 연결하지 못했어요: https://artifactbox.app",
+    "hint": "인터넷 연결을 확인하고 잠시 뒤 다시 시도해 주세요."
   }
 }
 ```
@@ -292,8 +292,8 @@
   "error": {
     "code": "AUTH_REQUIRED",
     "message": "로그인이 만료됐어요",
-    "server": "http://localhost:8013",
-    "email": "neo@hodoolabs.ai"
+    "server": "https://artifactbox.app",
+    "email": "user@example.com"
   }
 }
 ```
