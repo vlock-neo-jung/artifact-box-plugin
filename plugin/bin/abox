@@ -1,0 +1,18 @@
+#!/bin/sh
+# Runs the abox CLI bundle: dist/abox.js in the published plugin, or the CLI's build output when
+# the plugin loads in place from this repository (pnpm --filter @artifact-box/cli build).
+set -eu
+plugin_bin=$(dirname "$(readlink -f "$0")")
+bundle="$plugin_bin/../dist/abox.js"
+[ -f "$bundle" ] || bundle="$plugin_bin/../../packages/cli/dist/abox.js"
+if [ ! -f "$bundle" ]; then
+  echo "✗ abox 번들이 없어요: $bundle" >&2
+  echo "  → pnpm --filter @artifact-box/cli build" >&2
+  exit 1
+fi
+if ! node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 24 ? 0 : 1)' 2>/dev/null; then
+  echo "✗ abox를 실행하려면 Node.js 24 이상이 필요해요" >&2
+  echo "  → https://nodejs.org 에서 설치한 뒤 다시 실행해 주세요" >&2
+  exit 1
+fi
+exec node "$bundle" "$@"

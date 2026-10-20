@@ -1,0 +1,9 @@
+{
+  "name": "artifact-box",
+  "description": "Publish, update, share and list HTML/Markdown artifacts with the abox CLI (Artifact Box), and make templates (JSON Schema + screen + sample data) to publish artifacts from data.",
+  "author": {
+    "name": "neo"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["artifact", "publish", "share", "html", "markdown", "template"]
+}
