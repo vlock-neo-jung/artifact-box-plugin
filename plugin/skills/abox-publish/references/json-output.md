@@ -42,6 +42,7 @@
     "url": "…",
     "artifactId": "…",
     "version": 3,
+    "type": "html",
     "activeShare": true,
     "missing": [],
     "project": { "id": "Pq4wT8nV2mK6rX9bL3cH7j", "name": "workspace-artifact" },
@@ -49,6 +50,8 @@
   }
 }
 ```
+
+`type`(`html`|`md`|`canvas`)은 모든 결과에 있고, 캔버스면 `boardCount`(보드 수)도 있다.
 
 `project`는 모든 결과에 있고, 이 게시 뒤 아티팩트가 들어 있는 프로젝트다(옮겼으면 옮긴 곳, 기존 프로젝트면 그 프로젝트의 표기 그대로).
 
@@ -80,6 +83,35 @@
 ```
 
 비밀 파일(exit 2): `{"ok":false,"error":{"code":"SECRET_FILE","message":"…","files":["site/.env.production"]}}`
+
+캔버스의 `canvas.json`이 규칙과 맞지 않음(exit 2, 올리기 전에 검사한다):
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "CANVAS_INVALID",
+    "message": "canvas.json이 규칙에 맞지 않아요(문제 2개)",
+    "issueCount": 2,
+    "issues": [
+      {
+        "path": "/sections/0/boards/1/file",
+        "code": "file-not-found",
+        "message": "게시하는 폴더에 없는 파일이에요"
+      },
+      {
+        "path": "/sections/0/boards/1/title",
+        "code": "min-length",
+        "message": "제목이 비어 있어요"
+      }
+    ]
+  }
+}
+```
+
+- `path`는 `canvas.json` 안 JSON Pointer다(`""`는 파일 전체). `issues`는 50개까지 담기고 전체 수는 `issueCount`다.
+- `canvas.json`이 64KB를 넘으면 `LIMIT_EXCEEDED`(exit 5)다.
+- `canvas.json` 파일 하나를 넘기면(`--url`과 함께여도) `INVALID_INPUT`(hint 「캔버스는 폴더째 게시해요」), 캔버스 URL에 HTML 파일 하나를 넘기면 `INVALID_INPUT`(hint 「캔버스는 폴더째 수정 게시해요」)이다.
 
 ## publish — 템플릿 데이터
 
@@ -149,7 +181,29 @@
 
 ## pull
 
-`abox pull <URL> [--version N] --out <파일>` — 템플릿으로 만든 아티팩트의 데이터를 파일로 받는다.
+`abox pull <URL> [--version N] --out <경로>` — HTML·Markdown·캔버스는 게시한 원본 파일을 새 폴더로 받는다:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "path": "/tmp/artifact-box/model-console",
+    "publishPath": "/tmp/artifact-box/model-console",
+    "version": 3,
+    "type": "canvas",
+    "entryPath": "canvas.json",
+    "files": ["canvas.json", "console/list.html", "shared.css"]
+  }
+}
+```
+
+- `path`는 받은 폴더의 절대 경로이고, `files`는 그 안의 상대 경로다.
+- `publishPath`는 고친 뒤 `abox publish … --url`에 넘길 경로다. 캔버스와 진입 파일이 `index.html`인 HTML은 받은 폴더이고(파일을 더해도 함께 올라간다), 파일 하나로 게시한 HTML(`index.html` 아닌 이름)·Markdown은 그 파일이다.
+- `version`은 받은 버전(`--version N`, 기본 현재)이다.
+- 받은 파일이 목록과 다르면(받는 동안 라이브 아티팩트가 바뀜) `UNEXPECTED_RESPONSE`이고 아무것도 쓰지 않는다. 다시 받는다.
+- 받는 동안 `--out` 자리에 무엇이 생기면 `INVALID_INPUT`이고 아무것도 쓰지 않는다.
+
+템플릿으로 만든 아티팩트는 데이터를 파일로 받는다:
 
 ```json
 {
@@ -168,11 +222,11 @@
 
 - `path`는 쓴 파일의 절대 경로다. `sourceName`은 게시 때의 데이터 파일 이름이고, 수정 게시해도 이 이름이 유지된다.
 - `version`은 받은 아티팩트 버전(`--version N`, 기본 현재)이다. `schema`·`guide`(없으면 `null`)는 고정된 템플릿 버전의 것이다.
-- 오류
-  - `--out` 없음 → 요청 전에 `MISSING_REQUIRED`(`missing: ["out"]`). 아무것도 쓰지 않는다.
-  - 쓸 파일이 이미 있음 → `INVALID_INPUT`(`hint`: `--out`). 덮어쓰지 않는다.
-  - 템플릿으로 만든 아티팩트가 아님 → `INVALID_INPUT`
-  - 없는 버전 → `NOT_FOUND`(exit 4)
+  오류(파일·데이터 모두):
+
+- `--out` 없음 → 요청 전에 `MISSING_REQUIRED`(`missing: ["out"]`). 아무것도 쓰지 않는다.
+- `--out` 자리에 파일이나 폴더가 이미 있음(빈 폴더도) → 요청 전에 `INVALID_INPUT`(`hint`: `--out`). 덮어쓰지 않는다.
+- 없는 버전 → `NOT_FOUND`(exit 4)
 
 ## share · unshare
 
@@ -188,7 +242,7 @@
 
 ## info
 
-`data`: `id` · `url` · `workspace:{id,kind,name}` · `project:{id,name}` · `dir`(없으면 `null`) · `repo` · `title` · `description` · `tags`(정렬된 문자열 배열) · `type`(`html`|`md`) · `currentVersion` · `visibility` · `views:{count,lastViewedAt}` · `template` · `live` · `entryPath` · `sourceName` · `versions:[{number,createdAt,restoredFrom,…}]`(최신 먼저)
+`data`: `id` · `url` · `workspace:{id,kind,name}` · `project:{id,name}` · `dir`(없으면 `null`) · `repo` · `title` · `description` · `tags`(정렬된 문자열 배열) · `type`(`html`|`md`|`canvas`) · `currentVersion` · `visibility` · `views:{count,lastViewedAt}` · `template` · `live` · `entryPath` · `sourceName` · `versions:[{number,createdAt,restoredFrom,…}]`(최신 먼저) · `boardCount`(캔버스만, 현재 버전의 보드 수)
 
 `live` — `true`면 라이브 아티팩트다. 버전은 v1 하나뿐이고 게시할 때마다 그 내용이 바뀐다(`updatedAt`이 마지막 갱신). 되돌리기는 없다.
 
@@ -347,12 +401,13 @@
 
 ## 경고 코드
 
-| code                            | 뜻                                                                               |
-| ------------------------------- | -------------------------------------------------------------------------------- |
-| `DUPLICATE_LOCATION`            | 같은 디렉토리(없으면 같은 프로젝트)·파일명의 아티팩트가 이미 있음(`existingUrl`) |
-| `PUBLIC_UPDATE`                 | 공개 중인 아티팩트가 바뀌어 받는 사람에게 바로 보임                              |
-| `URL_HOLDERS_CAN_VIEW`          | 공개로 바뀌어 URL을 아는 사람이 열 수 있음(`reshare`)                            |
-| `ROOT_RELATIVE_PATHS`           | HTML에 `/`로 시작하는 경로가 있음(`files`)                                       |
-| `PROJECT_CREATED`               | 게시·이동이 새 프로젝트를 만듦(`project:{id,name}`)                              |
-| `TEAM_DEFAULT_WORKSPACE`        | (`workspace use`) 기본이 팀이 되어 `--workspace` 없는 게시를 팀 멤버 모두가 봄   |
-| `DEFAULT_WORKSPACE_UNAVAILABLE` | (`workspace ls` · `whoami`) 저장된 기본 워크스페이스를 더 쓸 수 없음             |
+| code                            | 뜻                                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `DUPLICATE_LOCATION`            | 같은 디렉토리(없으면 같은 프로젝트)·파일명의 아티팩트가 이미 있음(`existingUrl`)                   |
+| `PUBLIC_UPDATE`                 | 공개 중인 아티팩트가 바뀌어 받는 사람에게 바로 보임                                                |
+| `URL_HOLDERS_CAN_VIEW`          | 공개로 바뀌어 URL을 아는 사람이 열 수 있음(`reshare`)                                              |
+| `ROOT_RELATIVE_PATHS`           | HTML에 `/`로 시작하는 경로가 있음(`files`)                                                         |
+| `PROJECT_CREATED`               | 게시·이동이 새 프로젝트를 만듦(`project:{id,name}`)                                                |
+| `CANVAS_MANIFEST_IGNORED`       | (CLI) `index.html`이 있는 폴더라 HTML로 게시했고, 캔버스 매니페스트 같은 `canvas.json`은 읽지 않음 |
+| `TEAM_DEFAULT_WORKSPACE`        | (`workspace use`) 기본이 팀이 되어 `--workspace` 없는 게시를 팀 멤버 모두가 봄                     |
+| `DEFAULT_WORKSPACE_UNAVAILABLE` | (`workspace ls` · `whoami`) 저장된 기본 워크스페이스를 더 쓸 수 없음                               |
