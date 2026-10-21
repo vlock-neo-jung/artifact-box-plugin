@@ -46,7 +46,7 @@
 
 **디자인**
 
-- [ ] artifact-design 스킬이 있으면 그 지침(색 토큰·다크 모드·`body` 배경)을 따른다. 없으면 `:root`에 색 토큰을 두고 `@media (prefers-color-scheme: dark)`에서 다시 정의하며, `body` 배경을 정한다.
+- [ ] 디자인 스킬이 있으면 그 디자인 원칙을 따르되 이 체크리스트가 먼저다. 없으면 `:root`에 색 토큰을 두고 `@media (prefers-color-scheme: dark)`에서 다시 정의하며, `body` 배경을 정한다.
 - [ ] 390px 폭에서 가로 스크롤이 없고 좌우 여백이 16px 이상이다.
 
 ## 예시 화면

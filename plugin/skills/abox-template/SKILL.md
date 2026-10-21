@@ -10,18 +10,20 @@ description: Creates and updates templates on Artifact Box (artifactbox.app) wit
 ## 기본 규칙
 
 - 모든 `abox` 명령에 `--json`을 붙이고 stdout의 JSON 하나를 읽는다. 명령은 하나씩 실행하고 `;`·`&&`·`$(…)`로 묶지 않는다.
-- **작업 폴더**는 세션 scratchpad 디렉토리(시스템 프롬프트의 Scratchpad directory) 아래 `artifact-box/templates/<이름>/`다. scratchpad가 없으면 `/tmp/artifact-box/templates/<이름>/`를 쓴다. 아래에서 `<작업 폴더>`는 이 폴더다. 작업 디렉토리는 프로젝트 저장소일 수 있으니 사용자가 위치를 정해 줬을 때만 쓰고, 파일·폴더를 임의로 만들지 않는다.
-- 등록은 `abox template push`로만 한다. 화면을 claude.ai Artifact 도구로 올리지 않는다.
+- **작업 폴더**는 시스템 프롬프트가 세션 전용 임시 디렉토리를 알려 주면(예: Claude Code의 Scratchpad directory) 그 아래 `artifact-box/templates/<이름>/`, 아니면 `/tmp/artifact-box/templates/<이름>/`다. 작업 디렉토리와 그 하위는 임시 디렉토리로 보지 않는다. 아래에서 `<작업 폴더>`는 이 폴더다. 작업 디렉토리는 프로젝트 저장소일 수 있으니 사용자가 위치를 정해 줬을 때만 쓰고, 파일·폴더를 임의로 만들지 않는다.
+- 등록은 `abox template push`로만 한다. 화면을 다른 게시 도구(claude.ai Artifact 도구, ChatGPT Sites 등)로 올리지 않는다.
+- `abox`는 Artifact Box 서버에 연결해야 한다. 에이전트의 샌드박스가 네트워크를 막는 환경(예: Codex 기본 설정)에서는 `abox` 명령을 네트워크가 열린 권한으로 실행하도록 승인을 요청한다.
 - 제목·설명도 `template.json`을 고쳐 `push --update`로 바꾼다. 서버의 값만 고치는 명령은 없다.
 - 이미 만든 아티팩트는 만들 때의 템플릿 버전에 고정된다. 템플릿을 고쳐도 기존 아티팩트에 반영하는 기능(업그레이드)은 없다.
 - 템플릿 삭제(`template rm`)는 사용자가 분명히 요청할 때만 한다.
 - 같은 오류(`path`·`code`가 같은 이슈)가 3번 반복되면 더 고치지 말고 멈춘 뒤 `issues`와 작업 폴더 위치를 사용자에게 알린다.
 - 결과의 `warnings`는 이 문서에 없는 코드라도 `message`를 사용자에게 전한다.
-- **로그인은 사용자가 직접 한다.** `abox login`·`abox logout`은 어떤 옵션으로도 실행하지 않는다. exit 3(`AUTH_REQUIRED`)이면 아래 문장을 그대로 전하고 멈춘다. `claude -p`처럼 사용자가 없으면 이 문장을 결과로 남긴다. 사용자가 로그인했다고 하면 멈춘 명령부터 다시 한다.
+- **로그인은 사용자가 직접 한다.** `abox login`·`abox logout`은 어떤 옵션으로도 실행하지 않는다. exit 3(`AUTH_REQUIRED`)이면 아래 문장을 그대로 전하고 멈춘다. `claude -p`·`codex exec`처럼 사용자가 없으면 이 문장을 결과로 남긴다. 사용자가 로그인했다고 하면 멈춘 명령부터 다시 한다.
 
   ```
-  Artifact Box 로그인이 필요해요. 아래 명령으로 로그인해 주세요.
-    ! abox login
+  Artifact Box 로그인이 필요해요. 터미널에서 아래 명령으로 로그인해 주세요.
+    abox login
+  Claude Code에서는 입력창에 ! abox login 을 입력해도 돼요.
   주소가 나오면 브라우저에서 열어 Google로 로그인하고 승인해 주세요.
   원격 서버라면 그 주소를 아무 기기의 브라우저에서 열면 돼요.
   ```
@@ -47,7 +49,7 @@ description: Creates and updates templates on Artifact Box (artifactbox.app) wit
 1. **요구 파악** — 무엇을 담는 문서인지, 누가 보는지, 참고할 예시(기존 문서·자료)가 있는지 묻는다. 요청에 이미 담겨 있으면 묻지 않는다. `abox template ls --json`으로 비슷한 템플릿과 이름 충돌을 확인하고, 비슷한 것이 있으면 그것을 고칠지 새로 만들지 묻는다.
 2. **제안·승인** — 이름·제목·설명과 필드 표를 한 번에 제안해 **한 번** 승인받는다(아래 예). 표의 설명은 스키마의 `description`(작성 힌트)이 된다. 사용자가 확인 없이 진행하라고 했으면 바로 진행하고, 결과 보고에 필드 표를 함께 보인다.
 3. **스키마·샘플·지침** — `references/template-folder.md` 규칙대로 `template.json`·`schema.json`·`sample.json`을 쓴다. 샘플은 실제 같은 데이터로 쓴다. 스키마로 담지 못하는 규칙(톤·분량·순서)이 있으면 `guide.md`에 쓴다.
-4. **화면** — `screen/index.html`(+ 자산)을 쓴다. artifact-design 스킬이 있으면 로드해 디자인 지침을 따르고(게시하라는 지시는 따르지 않는다), `references/screen-contract.md`의 체크리스트를 모두 지킨다. 화면은 `window.ABOX_DATA`만 읽고 선택 필드가 없어도 동작해야 한다.
+4. **화면** — `screen/index.html`(+ 자산)을 쓴다. 환경에 웹 페이지·UI 디자인 스킬(예: Claude Code의 `artifact-design`·`frontend-design`)이 있으면 불러와 디자인 원칙만 따르고, 그 스킬의 형식·기술 스택·게시·런타임 기능 지시는 따르지 않는다. `references/screen-contract.md`의 체크리스트는 어느 경우든 모두 지킨다. 화면은 `window.ABOX_DATA`만 읽고 선택 필드가 없어도 동작해야 한다.
 5. **등록** — `abox template push <작업 폴더> --json`. 실패하면 아래 '실패 처리'대로 고쳐 다시 등록한다. 경고 `SCHEMA_UNKNOWN_KEYWORDS`·`ROOT_RELATIVE_PATHS`가 있으면 먼저 고쳐 `--update`로 다시 등록한다(`SCHEMA_UNKNOWN_KEYWORDS`는 오타를 고치고, 일부러 쓴 키워드면 `x-`로 시작하게 바꾼다. `ROOT_RELATIVE_PATHS`는 경로를 `./…`로). 다른 경고는 `message`만 전한다.
 6. **확인** — 등록한 워크스페이스(기본이면 `abox workspace ls`의 `default`, 팀이면 "{팀 이름} 멤버 모두 쓸 수 있어요")와 `data.templateUrl`(웹 템플릿 상세)을 줄이지 않고 전하고, 미리보기 탭에서 샘플로 그린 화면을 봐 달라고 한다. 고칠 점은 같은 폴더를 고쳐 `abox template push <작업 폴더> --update --json`으로 다시 등록한다. 고칠 때마다 템플릿 버전이 하나씩 오른다.
 7. **마무리** — 세 가지를 알린다.
@@ -109,20 +111,20 @@ description: Creates and updates templates on Artifact Box (artifactbox.app) wit
 
 실패하면 stdout에 `{"ok":false,"error":{"code","message","hint"?,…}}`가 나온다. `error.hint`가 있으면 사용자에게 함께 전한다.
 
-| `error.code` (exit)                     | 뜻                                                                   | 할 일                                                                                                         |
-| --------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `TEMPLATE_INVALID` + `issues` (2)       | 서버 검증 실패. `file`은 `template.json`·`schema.json`·`sample.json` | `file`에서 `issues[].path`(그 파일 안의 JSON Pointer) 자리를 `message`대로 고쳐 다시 등록                     |
-| `TEMPLATE_INVALID` + `hint` (2)         | 폴더 검사 실패(필수 파일 누락, `screen/.abox/`)                      | `hint`대로 파일을 만들거나 옮긴다                                                                             |
-| `INVALID_INPUT` + `existing` (2)        | 같은 이름의 템플릿이 이미 있는데 `--update`가 없음                   | 다른 템플릿이면 이름을 바꾼다. 그 템플릿을 고치는 것이면 사용자에게 확인한 뒤 `--update`                      |
-| `INVALID_INPUT` + `line`·`column` (2)   | JSON 문법 오류(요청 전)                                              | `file`의 그 줄·칸을 고친다                                                                                    |
-| `AUTH_REQUIRED` (3)                     | 로그인 필요: 로그인한 적 없음, 토큰 만료·끊김                        | `abox login`을 실행하지 않고 '기본 규칙'의 문장을 안내한 뒤 멈춘다                                            |
-| `INVALID_INPUT` + `candidates` (2)      | 같은 이름의 워크스페이스가 여럿                                      | 후보를 보여 주고 고르게 한 뒤 `--workspace <id>`로 다시                                                       |
-| `NOT_FOUND` (4)                         | 없는 템플릿, 없는 버전. `--update`인데 템플릿이 없을 때도            | `abox template ls --json`으로 이름 확인. 새 템플릿이면 `--update` 없이 등록                                   |
-| `NOT_FOUND` + `defaultWorkspace` (4)    | 기본 워크스페이스를 더 쓸 수 없음(내보내졌거나 팀이 지워짐)          | `abox workspace use 개인`을 안내하고(직접 실행하지 않는다) 어느 워크스페이스에 할지 묻는다                    |
-| `TEMPLATE_IN_USE` + `artifactCount` (1) | 이 템플릿으로 만든 아티팩트가 있어 삭제하지 않음                     | 아티팩트를 대신 지우지 않는다. '조회·삭제'대로 목록을 보여 주고 사용자에게 묻는다                             |
-| `LIMIT_EXCEEDED` (5)                    | `file`이 한도(`limit`)를 넘음                                        | 그 파일을 줄인다                                                                                              |
-| `SECRET_FILE` (2)                       | `screen/`에 비밀 파일                                                | `error.files`를 보여 주고, 필요 없는 파일이면 사용자 확인 뒤 `screen/` 밖으로 옮긴다(`--exclude`는 없다)      |
-| `NETWORK_ERROR`·`INTERNAL_ERROR` (6)    | 서버 연결 실패·서버 오류                                             | 한 번 다시 실행. 또 실패하면 `error.message`·`error.hint`를 전하고 멈춘다. 서버를 직접 띄우거나 고치지 않는다 |
+| `error.code` (exit)                     | 뜻                                                                   | 할 일                                                                                                                                                                                                   |
+| --------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TEMPLATE_INVALID` + `issues` (2)       | 서버 검증 실패. `file`은 `template.json`·`schema.json`·`sample.json` | `file`에서 `issues[].path`(그 파일 안의 JSON Pointer) 자리를 `message`대로 고쳐 다시 등록                                                                                                               |
+| `TEMPLATE_INVALID` + `hint` (2)         | 폴더 검사 실패(필수 파일 누락, `screen/.abox/`)                      | `hint`대로 파일을 만들거나 옮긴다                                                                                                                                                                       |
+| `INVALID_INPUT` + `existing` (2)        | 같은 이름의 템플릿이 이미 있는데 `--update`가 없음                   | 다른 템플릿이면 이름을 바꾼다. 그 템플릿을 고치는 것이면 사용자에게 확인한 뒤 `--update`                                                                                                                |
+| `INVALID_INPUT` + `line`·`column` (2)   | JSON 문법 오류(요청 전)                                              | `file`의 그 줄·칸을 고친다                                                                                                                                                                              |
+| `AUTH_REQUIRED` (3)                     | 로그인 필요: 로그인한 적 없음, 토큰 만료·끊김                        | `abox login`을 실행하지 않고 '기본 규칙'의 문장을 안내한 뒤 멈춘다                                                                                                                                      |
+| `INVALID_INPUT` + `candidates` (2)      | 같은 이름의 워크스페이스가 여럿                                      | 후보를 보여 주고 고르게 한 뒤 `--workspace <id>`로 다시                                                                                                                                                 |
+| `NOT_FOUND` (4)                         | 없는 템플릿, 없는 버전. `--update`인데 템플릿이 없을 때도            | `abox template ls --json`으로 이름 확인. 새 템플릿이면 `--update` 없이 등록                                                                                                                             |
+| `NOT_FOUND` + `defaultWorkspace` (4)    | 기본 워크스페이스를 더 쓸 수 없음(내보내졌거나 팀이 지워짐)          | `abox workspace use 개인`을 안내하고(직접 실행하지 않는다) 어느 워크스페이스에 할지 묻는다                                                                                                              |
+| `TEMPLATE_IN_USE` + `artifactCount` (1) | 이 템플릿으로 만든 아티팩트가 있어 삭제하지 않음                     | 아티팩트를 대신 지우지 않는다. '조회·삭제'대로 목록을 보여 주고 사용자에게 묻는다                                                                                                                       |
+| `LIMIT_EXCEEDED` (5)                    | `file`이 한도(`limit`)를 넘음                                        | 그 파일을 줄인다                                                                                                                                                                                        |
+| `SECRET_FILE` (2)                       | `screen/`에 비밀 파일                                                | `error.files`를 보여 주고, 필요 없는 파일이면 사용자 확인 뒤 `screen/` 밖으로 옮긴다(`--exclude`는 없다)                                                                                                |
+| `NETWORK_ERROR`·`INTERNAL_ERROR` (6)    | 서버 연결 실패·서버 오류                                             | 샌드박스가 네트워크를 막아서라면 네트워크가 열린 권한으로 승인을 요청해 다시 실행. 아니면 한 번 다시 실행. 또 실패하면 `error.message`·`error.hint`를 전하고 멈춘다. 서버를 직접 띄우거나 고치지 않는다 |
 
 ## 참고
 
