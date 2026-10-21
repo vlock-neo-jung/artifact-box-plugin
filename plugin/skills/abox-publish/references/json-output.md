@@ -198,9 +198,10 @@
 
 ## ls
 
-`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace 없음)]` · `projects:[{id,name,count,updatedAt}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
+`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace 없음)]` · `projects:[{id,name,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
 
-- `projects`는 아티팩트가 있는 프로젝트(최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다.
+- `projects`는 아티팩트가 있는 프로젝트(최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다. `count`도 그 프로젝트의 전체 개수다.
+- `--tag`를 주면 프로젝트마다 `matched`(그 태그를 모두 가진 수, 0일 수 있음)가 붙는다. `--repo`와 `--tag`만 따른다.
 - `dirs`(디렉토리가 있는 아티팩트만 센다)와 `tags`는 `--repo`와 `--project`를 따른다(그 프로젝트 안의 것). 다른 필터와는 상관없다.
 - `tags`는 미리 만든 태그(`preset: true`, 등록 순서)가 먼저, 나머지는 많이 쓴 순이다.
 - `--project <이름>`은 대소문자·띄어쓰기가 달라도 같은 프로젝트를 찾는다. 없는 이름이면 `items`가 비어 있다(오류 아님).
