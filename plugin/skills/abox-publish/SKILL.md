@@ -30,6 +30,7 @@ Artifact Box는 HTML·Markdown 파일을 게시하고, 아티팩트마다 공개
 ```
 Artifact Box CLI(abox)가 설치돼 있지 않아요. 터미널에서 아래 명령으로 설치해 주세요(Node.js 24 이상 필요).
   curl -fsSL https://artifactbox.app/install.sh | sh
+다른 설치 방법(Claude Code 플러그인, 스킬)은 https://artifactbox.app/guide 에 있어요.
 이미 설치했다면 ~/.local/bin 폴더가 PATH에 있는지 확인해 주세요.
 설치한 뒤 다시 요청해 주세요.
 ```
