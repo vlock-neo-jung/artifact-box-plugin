@@ -242,7 +242,9 @@
 
 ## info
 
-`data`: `id` · `url` · `workspace:{id,kind,name}` · `project:{id,name}` · `dir`(없으면 `null`) · `repo` · `title` · `description` · `tags`(정렬된 문자열 배열) · `type`(`html`|`md`|`canvas`) · `currentVersion` · `visibility` · `views:{count,lastViewedAt}` · `template` · `live` · `entryPath` · `sourceName` · `versions:[{number,createdAt,restoredFrom,…}]`(최신 먼저) · `boardCount`(캔버스만, 현재 버전의 보드 수)
+`data`: `id` · `url` · `workspace:{id,kind,name}` · `project:{id,name}` · `dir`(없으면 `null`) · `repo` · `title` · `description` · `tags`(정렬된 문자열 배열) · `type`(`html`|`md`|`canvas`|`question`) · `currentVersion` · `visibility` · `views:{count,lastViewedAt}` · `template` · `live` · `entryPath` · `sourceName` · `versions:[{number,createdAt,restoredFrom,…}]`(최신 먼저) · `boardCount`(캔버스만, 현재 버전의 보드 수)
+
+`type`이 `question`이면 질문 아티팩트(`abox-ask` 스킬)다. `questions:{total,waiting}`(질문 수 · 답 대기 수)가 있고 `versions`는 비어 있다. 파일이 없어서 수정 게시 · 되돌리기 · `pull`은 거부되고, 질문 아티팩트는 질문의 첨부로 쓸 수 없다.
 
 `live` — `true`면 라이브 아티팩트다. 버전은 v1 하나뿐이고 게시할 때마다 그 내용이 바뀐다(`updatedAt`이 마지막 갱신). 되돌리기는 없다.
 
