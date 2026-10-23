@@ -18,7 +18,7 @@ description: Asks the user for decisions through question pages on Artifact Box 
 - **작업 폴더**는 시스템 프롬프트가 세션 전용 임시 디렉토리를 알려 주면(예: Claude Code의 Scratchpad directory) 그 아래 `artifact-box/questions/`, 아니면 `/tmp/artifact-box/questions/`다. 질문 JSON은 여기에 질문마다 새 파일로 쓴다. 작업 디렉토리와 그 하위는 프로젝트 저장소일 수 있으니 파일을 만들지 않는다.
 - `abox`는 Artifact Box 서버에 연결해야 한다. 에이전트의 샌드박스가 네트워크를 막는 환경(예: Codex 기본 설정)에서는 `abox` 명령을 네트워크가 열린 권한으로 실행하도록 승인을 요청한다.
 - 주제는 **비공개**로 시작한다. **공개(`share`)·삭제(`rm`)는 사용자가 명시적으로 요청할 때만** 한다(아래 '공개').
-- **새 주제의 워크스페이스는 사용자가 말할 때만 고른다**(`--workspace`, 고르는 법은 `abox-publish` 스킬의 '워크스페이스'). 말하지 않으면 기본 워크스페이스에 새 주제를 만든다. 단, 있는 주제의 첨부를 찾고 게시할 때는 사용자가 말하지 않았어도 **주제의 워크스페이스를 늘 넘긴다**(아래 '3. 첨부 찾기 · 만들기').
+- **새 주제의 워크스페이스는 사용자가 말할 때만 고른다**(`--workspace`, 고르는 법은 `abox-publish` 스킬의 '워크스페이스'). 말하지 않으면 현재 프로젝트(아래 '1. 주제 정하기')의 워크스페이스, 현재 프로젝트도 없으면 기본 워크스페이스에 새 주제를 만든다. 단, 있는 주제의 첨부를 찾고 게시할 때는 사용자가 말하지 않았어도 **주제의 워크스페이스를 늘 넘긴다**(아래 '3. 첨부 찾기 · 만들기').
 - 새 주제에는 미리 만든 태그를 0~3개 붙인다(`abox-publish` 스킬의 '미리 만든 태그'와 같다). 질문을 더할 때는 붙이지 않는다.
 - 터미널 답은 **사용자가 실제로 한 답만** `abox answer`로 기록한다. 결정 바꾸기(`--change-decision`)는 사용자가 바꾸자고 할 때만 쓴다.
 - 결과의 `warnings`는 이 문서에 없는 코드라도 `message`를 사용자에게 전한다.
@@ -65,15 +65,17 @@ description: Asks the user for decisions through question pages on Artifact Box 
 
 1. 사용자가 준 주제 URL
 2. 이 세션에서 쓰던 주제
-3. `abox ls --type question --project <현재 프로젝트> --json`에서 같은 대상을 다루는 주제(제목 · 설명으로 판단). `<현재 프로젝트>`는 사용자가 말한 프로젝트, 없으면 작업 디렉토리 이름이다
+3. `abox ls --type question --project <현재 프로젝트 id> --json`에서 같은 대상을 다루는 주제(제목 · 설명으로 판단). 현재 프로젝트가 없으면 `--project` 없이 워크스페이스 전체에서 찾는다
 4. 새로 만든다(아래 '6. 올리기'). 주제 제목은 정해 가는 대상(「결제 재시도 설계」), 설명은 그 주제에서 무엇을 정하는지 한 줄이다
 
 주제 하나에 질문은 100개까지다. 다른 대상의 결정이면 새 주제를 만든다.
 
+**현재 프로젝트**는 `abox-publish` 스킬의 '프로젝트' 순서로 정한 프로젝트의 id다: 사용자가 이번에 말한 프로젝트(`abox project ls --json`의 이름과 맞춰 id로 바꾼다), 아니면 레포 연결(`Artifact Box 프로젝트: <이름> (id: <id>)` 줄)의 id. 둘 다 없으면 현재 프로젝트가 없다. 말한 프로젝트를 찾는 워크스페이스는 그 스킬의 '프로젝트' 1과 같다: 사용자가 말한 워크스페이스, 없으면 레포 연결 프로젝트의 워크스페이스(`abox project info <연결 id> --json`의 `data.workspace.id`), 그것도 없으면 기본 워크스페이스다. 말한 프로젝트가 목록에 없으면 3에서는 `--project` 없이 그 워크스페이스에서 찾고, 새 주제를 만들기로 하면(4) 첨부를 게시하기 전에 `abox project add <이름> --workspace <그 워크스페이스> --json`으로 만들어 그 `data.id`를 쓴다. 레포 연결의 워크스페이스에서 찾았고 그곳이 기본 워크스페이스(`abox workspace ls --json`에서 `default`가 true)가 아니면 만들기 전에 어느 워크스페이스에 만들지 묻는다. 레포 연결 id가 `NOT_FOUND`(exit 4)면 다른 곳에 대신 만들지 않고 알린 뒤 멈춘다.
+
 주제가 정해지면 **주제의 워크스페이스와 프로젝트**를 안다. 다음 단계의 첨부 찾기 · 게시에 쓴다.
 
-- 있는 주제(1~3): `abox info <주제 URL> --json`의 `data.workspace.id` · `data.project.name`이다. 이 세션에서 `abox ask`로 만든 주제면 그 결과의 `data.workspace.id` · `data.project.name`을 써도 된다.
-- 새 주제(4): 주제를 만들 곳이다. 워크스페이스는 사용자가 말한 `--workspace`, 없으면 기본 워크스페이스이고, 프로젝트는 `<현재 프로젝트>`다.
+- 있는 주제(1~3): `abox info <주제 URL> --json`의 `data.workspace.id` · `data.project.id`다. 이 세션에서 `abox ask`로 만든 주제면 그 결과의 `data.workspace.id` · `data.project.id`를 써도 된다.
+- 새 주제(4): 주제를 만들 곳이다. 프로젝트는 현재 프로젝트(없으면 `미분류`)이고, 워크스페이스는 사용자가 말한 `--workspace`, 없으면 현재 프로젝트의 워크스페이스(`abox project info <id> --json`의 `data.workspace.id`), 그것도 없으면 기본 워크스페이스다.
 
 ### 2. 한 번에 하나만 묻는다
 
@@ -83,11 +85,11 @@ description: Asks the user for decisions through question pages on Artifact Box 
 
 질문마다 이 결정을 이해하는 데 쓰는 아티팩트를 1~5개 첨부한다(필수). 첨부는 주제와 **같은 워크스페이스**에 있어야 한다. 다른 워크스페이스(개인 ↔ 팀)의 아티팩트는 서버가 「이 워크스페이스에서 찾을 수 없는 아티팩트예요」로 거부한다.
 
-이 단계의 `abox ls` · `abox publish`에는 주제의 워크스페이스를 넘긴다(위 '1. 주제 정하기'의 끝). 있는 주제면 기본 워크스페이스여도 늘 `--workspace <data.workspace.id>`를 넘긴다. 새 주제면 `abox ask`에 넘길 것과 같은 `--workspace`를 넘기고, 사용자가 말하지 않았으면 셋 다 넘기지 않는다.
+이 단계의 `abox ls` · `abox publish`에는 주제의 워크스페이스를 넘긴다(위 '1. 주제 정하기'의 끝). 있는 주제면 기본 워크스페이스여도 늘 `--workspace <data.workspace.id>`를 넘긴다. 새 주제면 `abox ask`에 넘길 것과 같은 `--workspace` · `--project`를 넘긴다. `--workspace`가 없으면 셋 다 `--project`의 워크스페이스, 둘 다 없으면 기본 워크스페이스에서 동작한다.
 
-1. **찾기**: `abox ls --workspace <주제 워크스페이스> --project <주제 프로젝트> --json`(필요하면 `--tag <태그>` · `-q <검색어>`, 없으면 `--project` 없이 같은 워크스페이스 전체)으로 이 결정과 관련된 정의서 · 시안 · 설계 문서 · 리포트를 찾는다. 제목 · 설명으로 맞는지 판단해 맞으면 그 `url`을 그대로 첨부한다.
+1. **찾기**: `abox ls --workspace <주제 워크스페이스> --project <주제 프로젝트 id> --json`(필요하면 `--tag <태그>` · `-q <검색어>`, 없으면 `--project` 없이 같은 워크스페이스 전체)으로 이 결정과 관련된 정의서 · 시안 · 설계 문서 · 리포트를 찾는다. 제목 · 설명으로 맞는지 판단해 맞으면 그 `url`을 그대로 첨부한다.
 2. **캔버스**는 관련 보드를 `<URL>#board=<보드 파일>`로 가리킨다. 보드 파일 이름은 이 세션에서 만든 캔버스면 그 `canvas.json`에서, 아니면 `abox pull <URL> --out <작업 폴더>/<새 폴더> --json`으로 받은 `canvas.json`의 `boards[].file`에서 찾는다.
-3. **없으면 만든다**: 이 질문을 이해하는 데 필요한 설명을 `abox-publish` 스킬의 규칙으로 만들어 주제와 같은 워크스페이스 · 프로젝트에 게시한 뒤 첨부한다(`abox publish … --workspace <주제 워크스페이스> --project <주제 프로젝트> --json`). 글 · 표 · 비교면 Markdown, 화면이 걸린 결정이면 캔버스 시안, 차트가 필요하면 HTML이다. 새로 만든 아티팩트는 일반 아티팩트라 다음 질문에서 다시 붙인다.
+3. **없으면 만든다**: 이 질문을 이해하는 데 필요한 설명을 `abox-publish` 스킬의 규칙으로 만들어 주제와 같은 워크스페이스 · 프로젝트에 게시한 뒤 첨부한다(`abox publish … --workspace <주제 워크스페이스> --project <주제 프로젝트 id> --json`). 글 · 표 · 비교면 Markdown, 화면이 걸린 결정이면 캔버스 시안, 차트가 필요하면 HTML이다. 새로 만든 아티팩트는 일반 아티팩트라 다음 질문에서 다시 붙인다.
 4. 질문 아티팩트(자기 주제 포함)는 첨부할 수 없다. 앞 결정은 `related`로 가리킨다. 바깥 웹 문서는 첨부가 아니라 `links`에 둔다.
 5. 관련 없는 아티팩트를 개수를 채우려고 붙이지 않는다.
 
@@ -129,12 +131,13 @@ description: Asks the user for decisions through question pages on Artifact Box 
 
 ### 6. 올리기
 
-새 주제(q1)는 `--title` · `--desc`가 필수이고, `--dir` · `--repo` · `--tag` · `--project` · `--workspace`는 `abox-publish` 스킬의 '새 게시'와 같은 규칙으로 채운다.
+새 주제(q1)는 `--title` · `--desc`가 필수이고, `--dir` · `--repo` · `--tag` · `--workspace`는 `abox-publish` 스킬의 '새 게시'와 같은 규칙으로 채운다. `--project`에는 현재 프로젝트의 id를 넘기고, 없으면 넘기지 않는다(`미분류`).
 
 ```bash
 abox ask <작업 폴더>/payment-retry-q1.json \
   --title "결제 재시도 설계" --desc "결제가 일시 오류로 실패할 때 다시 시도하는 방법을 정해요" \
-  --dir payment-service --repo hodoolabs/payment-service --tag 설계 --json
+  --project Pq4wT8nV2mK6rX9bL3cH7j --dir payment-service --repo hodoolabs/payment-service \
+  --tag 설계 --json
 ```
 
 있는 주제에 더할 때는 `--url`만 준다(`--title` 등 주제 정보와 `--workspace`는 함께 줄 수 없다).
@@ -159,7 +162,7 @@ abox ask <작업 폴더>/payment-retry-q5.json --url https://artifactbox.app/a/X
 q3 재시도 위치 — https://artifactbox.app/a/Xk2vR9pQ7mL4tB8nC1dE5f#q3
 ```
 
-새 주제를 만들었으면(`data.created`) 비공개로 만들었다는 것과 워크스페이스(`data.workspace.name`, 팀이면 "비공개지만 {팀 이름} 멤버 모두 볼 수 있어요") · 프로젝트(`data.project.name`)를 함께 알린다. `PROJECT_CREATED` 경고가 있으면 "새 프로젝트를 만들었어요: X"라고 알린다. 대체했으면(`data.revises`) `q3 → q5`를 덧붙인다. 그 뒤 바로 '기다리기'로 간다.
+새 주제를 만들었으면(`data.created`) 비공개로 만들었다는 것과 워크스페이스(`data.workspace.name`, 팀이면 "비공개지만 {팀 이름} 멤버 모두 볼 수 있어요") · 프로젝트(`data.project.name`)를 함께 알린다. 이번에 `abox project add`로 프로젝트를 만들었으면 "새 프로젝트를 만들었어요: X"라고 알린다. 대체했으면(`data.revises`) `q3 → q5`를 덧붙인다. 그 뒤 바로 '기다리기'로 간다.
 
 ## 기다리기
 
@@ -231,9 +234,9 @@ q3 재시도 위치 — https://artifactbox.app/a/Xk2vR9pQ7mL4tB8nC1dE5f#q3
 | 2 · `INVALID_INPUT` + `candidates`     | 같은 이름의 워크스페이스가 여럿                                            | 후보를 보여 주고 고르게 한 뒤 `--workspace <id>`로 다시 실행                                                                                                                                                                                                                                                                                             |
 | 1 · `QUESTION_CLOSED`                  | 그 질문이 더는 그 동작을 받지 않음                                         | `error.status` · `answer` · `supersededBy` · `withdrawal`이 지금 상태다. 결정됐으면 그 결정으로 이어 가고, 대체됐으면 이어받은 질문을 읽고, 거둬들였으면 다시 올리지 않는다. 결정된 질문을 대체하려던 것이면 사용자가 결정을 바꾸자고 했을 때만 `--change-decision`을 붙인다                                                                             |
 | 3 · `AUTH_REQUIRED`                    | 로그인 필요                                                                | `abox login`을 실행하지 않고 '기본 규칙'의 문장을 안내한 뒤 멈춘다                                                                                                                                                                                                                                                                                       |
-| 4 · `NOT_FOUND`                        | 주제 · 질문 없음, 멤버가 아님                                              | 주소를 확인한다. `abox wait` 중이었다면 지워진 것이니 그 결정은 터미널에서 묻는다                                                                                                                                                                                                                                                                        |
+| 4 · `NOT_FOUND`                        | 주제 · 질문 · 프로젝트 없음, 멤버가 아님                                   | 주소를 확인한다. `abox wait` 중이었다면 지워진 것이니 그 결정은 터미널에서 묻는다. 레포 연결의 프로젝트가 없으면(「프로젝트가 없어요」) 다른 곳에 대신 만들지 않고 알린 뒤 멈춘다                                                                                                                                                                        |
 | 5 · `LIMIT_EXCEEDED`                   | 질문이 128KB를 넘음, 또는 주제의 질문이 100개                              | 크기면 긴 설명을 첨부 아티팩트(Markdown)로 옮기고 질문에는 요약과 결정에 필요한 핵심을 남긴다. 개수면 새 주제를 만든다                                                                                                                                                                                                                                   |
-| 6 · `NETWORK_ERROR` · `INTERNAL_ERROR` | 서버 연결 실패 · 서버 오류                                                 | 샌드박스가 네트워크를 막아서라면 승인을 요청해 다시 실행. 아니면 한 번 다시 실행한다. `ask`를 다시 보내기 전에는 이미 올라갔는지 확인한다(새 주제면 `abox ls --type question -q <주제 제목> --json`, 있는 주제면 `abox read '<주제 URL>'`). 또 실패하면 `error.message`·`error.hint`를 전하고 멈춘다                                                     |
+| 6 · `NETWORK_ERROR` · `INTERNAL_ERROR` | 서버 연결 실패 · 서버 오류                                                 | 샌드박스가 네트워크를 막아서라면 승인을 요청해 다시 실행. 아니면 한 번 다시 실행한다. `ask`를 다시 보내기 전에는 이미 올라갔는지 확인한다(새 주제면 `abox ls --type question -q <주제 제목> --json`(현재 프로젝트가 있으면 `--project <id>`도), 있는 주제면 `abox read '<주제 URL>'`). 또 실패하면 `error.message`·`error.hint`를 전하고 멈춘다          |
 
 ## 참고
 

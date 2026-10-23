@@ -55,7 +55,7 @@ description: Creates and updates templates on Artifact Box (artifactbox.app) wit
 7. **마무리** — 세 가지를 알린다.
    - 작업 폴더 위치. 세션이 끝나면 지워질 수 있지만 원본은 서버에 있어 `abox template pull <이름> --out <폴더>`로 다시 받을 수 있다.
    - 이 템플릿으로 게시하는 법: "주간 보고 템플릿으로 이번 주 보고 게시해 줘"처럼 말하면 된다.
-   - CLI로는 `abox publish <data.json> --template <이름> --title <제목> --desc <설명>`(프로젝트 `--project`·디렉토리 `--dir`·태그 `--tag`는 선택).
+   - CLI로는 `abox publish <data.json> --template <이름> --title <제목> --desc <설명>`(프로젝트 `--project <id>`(`abox project ls`의 id, 없으면 `미분류`)·디렉토리 `--dir`·태그 `--tag`는 선택).
 
 제안 예(②):
 

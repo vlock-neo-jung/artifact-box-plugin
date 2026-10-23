@@ -20,21 +20,14 @@
     "visibility": { "mode": "private", "expiresAt": null },
     "project": { "id": "Pq4wT8nV2mK6rX9bL3cH7j", "name": "payment-service" },
     "workspace": { "id": "Wn3kQ7vR2xL9mT4pB8cJ6d", "kind": "personal", "name": "개인" }
-  },
-  "warnings": [
-    {
-      "code": "PROJECT_CREATED",
-      "message": "새 프로젝트를 만들었어요",
-      "project": { "id": "Pq4wT8nV2mK6rX9bL3cH7j", "name": "payment-service" }
-    }
-  ]
+  }
 }
 ```
 
 - `url`은 주제, `questionUrl`은 올린 질문의 주소다. 사용자에게는 `questionUrl`을 줄이지 않고 준다.
 - `created: true`면 이 질문과 함께 새 주제가 만들어졌다. `--url`로 더했으면 `false`다.
 - `--revises`로 대체했으면 `revises`(대체된 질문 번호)가 있다.
-- `warnings`의 `PROJECT_CREATED`는 새 주제가 새 프로젝트를 만들었다는 뜻이다.
+- `project` · `workspace`는 주제가 있는 곳이다. 새 주제는 `--project`의 프로젝트(없으면 그 워크스페이스의 `미분류`)에 만들어진다. `--project`의 값 · 실패는 `abox-publish` 스킬의 `references/json-output.md`(publish)와 같다.
 
 `abox ask --example <종류> --json`은 `data`가 그 종류의 질문 JSON 틀이다.
 

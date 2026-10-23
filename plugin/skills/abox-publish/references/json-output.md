@@ -53,9 +53,9 @@
 
 `type`(`html`|`md`|`canvas`)은 모든 결과에 있고, 캔버스면 `boardCount`(보드 수)도 있다.
 
-`project`는 모든 결과에 있고, 이 게시 뒤 아티팩트가 들어 있는 프로젝트다(옮겼으면 옮긴 곳, 기존 프로젝트면 그 프로젝트의 표기 그대로).
+`project`는 모든 결과에 있고, 이 게시 뒤 아티팩트가 들어 있는 프로젝트다(옮겼으면 옮긴 곳, `--project` 없는 새 게시면 `미분류`).
 
-`workspace:{id,kind,name}`도 모든 결과에 있고, 아티팩트가 있는 워크스페이스다. `kind`가 `team`이면 비공개여도 그 팀 멤버 모두가 볼 수 있다. 새 게시는 `--workspace`나 기본 워크스페이스에, 수정 게시는 아티팩트가 있던 워크스페이스에 그대로 들어간다.
+`workspace:{id,kind,name}`도 모든 결과에 있고, 아티팩트가 있는 워크스페이스다. `kind`가 `team`이면 비공개여도 그 팀 멤버 모두가 볼 수 있다. 새 게시는 `--project`의 워크스페이스(`--workspace`도 주면 둘이 같아야 한다), `--workspace`, 기본 워크스페이스 순으로 정한 곳에, 수정 게시는 아티팩트가 있던 워크스페이스에 그대로 들어간다.
 
 필수 정보 누락(exit 2):
 
@@ -70,17 +70,15 @@
 }
 ```
 
-새 게시는 `--title`·`--desc`만 필수다. `--project` 이름이 규칙(60자 이하, 빈 이름·제어 문자 불가)에 맞지 않으면 요청 전에 `INVALID_INPUT`(exit 2)이다.
+새 게시는 `--title`·`--desc`만 필수다. 게시는 프로젝트를 만들지 않는다. `--project`가 받는 값과 실패:
 
-새 프로젝트를 만든 게시(새 게시·`--url`과 `--project`로 옮긴 수정 게시)에는 경고가 붙는다.
-
-```json
-{
-  "code": "PROJECT_CREATED",
-  "message": "새 프로젝트를 만들었어요: 회의자료",
-  "project": { "id": "Pq4wT8nV2mK6rX9bL3cH7j", "name": "회의자료" }
-}
-```
+| 경우                                                      | exit | `error`                                                                 |
+| --------------------------------------------------------- | ---- | ----------------------------------------------------------------------- |
+| id(22자) 모양이 아닌 값(이름 등). 요청 전에 거절          | 2    | `INVALID_INPUT` 「프로젝트는 id로 지정해요」(`hint`: `abox project ls`) |
+| 없거나 지운 프로젝트, 멤버가 아닌 워크스페이스의 프로젝트 | 4    | `NOT_FOUND` 「프로젝트가 없어요」                                       |
+| `--workspace`와 다른 워크스페이스의 프로젝트(새 게시)     | 2    | `INVALID_INPUT`                                                         |
+| 다른 워크스페이스의 프로젝트로 옮기기(`--url`)            | 2    | `INVALID_INPUT`                                                         |
+| 프로젝트를 이름으로 보내는 이전 CLI                       | 2    | `INVALID_INPUT`(`hint`: `abox update`)                                  |
 
 비밀 파일(exit 2): `{"ok":false,"error":{"code":"SECRET_FILE","message":"…","files":["site/.env.production"]}}`
 
@@ -137,7 +135,7 @@
 - `project` · `workspace`는 파일 게시와 같다(이 게시 뒤 아티팩트의 프로젝트 · 워크스페이스). 새 게시의 템플릿은 그 워크스페이스에서 찾는다.
 - `result`(라이브의 `updated` 포함)와 `previousVersion`(`new_version`일 때)은 파일 게시와 같다. `unchanged`·`metadata_updated`에도 `type`·`visibility`·`template`이 있고, `missing`·`activeShare`는 없다.
 - `template`은 이 아티팩트가 고정된 템플릿 버전이다(`version`).
-- 경고: `DUPLICATE_LOCATION`(새 게시)·`PUBLIC_UPDATE`(수정 게시)·`PROJECT_CREATED`(새 프로젝트를 만들었을 때).
+- 경고: `DUPLICATE_LOCATION`(새 게시)·`PUBLIC_UPDATE`(수정 게시).
 
 검증 실패(exit 2):
 
@@ -254,23 +252,23 @@
 
 ## ls
 
-`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace 없음)]` · `projects:[{id,name,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
+`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace 없음)]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
 
-- `projects`는 아티팩트가 있는 프로젝트(최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다. `count`도 그 프로젝트의 전체 개수다.
+- `projects`는 그 워크스페이스의 프로젝트(빈 것 포함, 최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다(`--repo`면 그 저장소의 아티팩트가 있는 것만). `count`도 그 프로젝트의 전체 개수다.
 - `--tag`를 주면 프로젝트마다 `matched`(그 태그를 모두 가진 수, 0일 수 있음)가 붙는다. `--repo`와 `--tag`만 따른다.
 - `dirs`(디렉토리가 있는 아티팩트만 센다)와 `tags`는 `--repo`와 `--project`를 따른다(그 프로젝트 안의 것). 다른 필터와는 상관없다.
 - `tags`는 미리 만든 태그(`preset: true`, 등록 순서)가 먼저, 나머지는 많이 쓴 순이다.
-- `--project <이름>`은 대소문자·띄어쓰기가 달라도 같은 프로젝트를 찾는다. 없는 이름이면 `items`가 비어 있다(오류 아님).
+- `--project <id>`만 주면 그 프로젝트의 워크스페이스를 조회한다(`data.workspace`). 없거나 볼 수 없는 프로젝트면 `NOT_FOUND`(exit 4)다. `--workspace`와 함께 주면 그 워크스페이스에서 찾고, 그곳의 프로젝트가 아니면 `items`가 비어 있다.
 
 `--template <이름>`이면 그 템플릿으로 만든 것만 나온다. 없는 템플릿 이름이면 `items`가 비어 있다(오류 아님).
 
 ## edit
 
-`data`: info와 같은 상세(바뀐 뒤의 값, `project`·`tags` 포함). `--project`로 새 프로젝트를 만들었으면 `PROJECT_CREATED` 경고가 붙는다. 바꿀 항목이 없거나 값이 규칙에 맞지 않으면 exit 2(`INVALID_INPUT`).
+`data`: info와 같은 상세(바뀐 뒤의 값, `project`·`tags` 포함). 바꿀 항목이 없거나 값이 규칙에 맞지 않으면 exit 2(`INVALID_INPUT`). `--project`의 실패는 publish와 같다(옮기기는 같은 워크스페이스의 프로젝트로만).
 
 ## project
 
-`project ls` — 아티팩트가 있는 프로젝트, 최근 바뀐 순(`updatedAt` = 그 안 아티팩트의 최근 수정 시각):
+`project ls` — 그 워크스페이스의 모든 프로젝트(빈 것 포함), 최근 바뀐 순(`updatedAt` = 그 안 아티팩트의 최근 수정 시각, 빈 프로젝트는 프로젝트 자신의 수정 시각). `description`은 없으면 `""`이고 줄바꿈이 있을 수 있다:
 
 ```json
 {
@@ -280,6 +278,7 @@
       {
         "id": "Pq4wT8nV2mK6rX9bL3cH7j",
         "name": "leda-platform",
+        "description": "레다 플랫폼 문서와 화면 시안",
         "count": 12,
         "updatedAt": "2026-10-08T00:40:00.000Z"
       }
@@ -288,7 +287,24 @@
 }
 ```
 
-`project rename <이름> <새 이름>` — `data`: 바뀐 뒤의 `{id,name,count,updatedAt}`. 없는 이름이면 `NOT_FOUND`(exit 4, `hint`), 다른 프로젝트와 같은 이름이면 `INVALID_INPUT`(exit 2, `hint`).
+- `project info <id>` — `data`: `project ls`의 항목에 `workspace:{id,kind,name}`(프로젝트가 있는 워크스페이스)를 더한 것. 없거나 볼 수 없는 id면 `NOT_FOUND`(exit 4, `hint`).
+- `project add <이름> [--desc S]` — `data`: 만든 프로젝트 `{id,name,description,count,updatedAt}`(`count`는 0). 레포 연결 줄은 `Artifact Box 프로젝트: <name> (id: <id>)`다. 그 워크스페이스에 같은 이름(대소문자·띄어쓰기 무시)이 있으면 `INVALID_INPUT`(exit 2, `hint`).
+- `project edit <id> [--name N] [--desc S]` — `data`: 바뀐 뒤의 `{id,name,description,count,updatedAt}`. `--desc ""`는 설명을 지운다. 둘 다 없으면 요청 전에 exit 2. 다른 프로젝트와 같은 이름이면 `INVALID_INPUT`(exit 2), 없는 id면 `NOT_FOUND`(exit 4).
+- `project rm <id>` — `data:{deleted:true}`. 아티팩트가 있으면 지우지 않는다:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "PROJECT_NOT_EMPTY",
+    "message": "아티팩트 3개가 있어서 지울 수 없어요. 옮기거나 지운 뒤 다시 해 주세요",
+    "artifactCount": 3,
+    "hint": "아티팩트 목록: abox ls --project Pq4wT8nV2mK6rX9bL3cH7j"
+  }
+}
+```
+
+`project info`·`edit`·`rm`의 `<id>`가 id 모양이 아니면 요청 전에 `INVALID_INPUT`(exit 2)이다. 이름 · 설명 규칙(이름 1~60자, 설명 500자까지)에 맞지 않아도 요청 전에 exit 2다.
 
 ## tag
 
@@ -409,7 +425,6 @@
 | `PUBLIC_UPDATE`                 | 공개 중인 아티팩트가 바뀌어 받는 사람에게 바로 보임                                                |
 | `URL_HOLDERS_CAN_VIEW`          | 공개로 바뀌어 URL을 아는 사람이 열 수 있음(`reshare`)                                              |
 | `ROOT_RELATIVE_PATHS`           | HTML에 `/`로 시작하는 경로가 있음(`files`)                                                         |
-| `PROJECT_CREATED`               | 게시·이동이 새 프로젝트를 만듦(`project:{id,name}`)                                                |
 | `CANVAS_MANIFEST_IGNORED`       | (CLI) `index.html`이 있는 폴더라 HTML로 게시했고, 캔버스 매니페스트 같은 `canvas.json`은 읽지 않음 |
 | `TEAM_DEFAULT_WORKSPACE`        | (`workspace use`) 기본이 팀이 되어 `--workspace` 없는 게시를 팀 멤버 모두가 봄                     |
 | `DEFAULT_WORKSPACE_UNAVAILABLE` | (`workspace ls` · `whoami`) 저장된 기본 워크스페이스를 더 쓸 수 없음                               |
