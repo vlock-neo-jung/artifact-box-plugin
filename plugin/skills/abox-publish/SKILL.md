@@ -71,9 +71,8 @@ Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL�
 아래 문장을 사용자에게 그대로 전하고 지금 작업을 멈춘다. 만들어 둔 파일은 그대로 두고, 사용자가 설치했다고 하면 멈춘 명령부터 다시 실행한다.
 
 ```
-Artifact Box CLI(abox)가 설치돼 있지 않아요. 터미널에서 아래 명령으로 설치해 주세요(Node.js 24 이상 필요).
-  curl -fsSL https://artifactbox.app/install.sh | sh
-다른 설치 방법(Claude Code 플러그인, 스킬)은 https://artifactbox.app/guide 에 있어요.
+Artifact Box CLI(abox)가 설치돼 있지 않아요. https://artifactbox.app/guide 의 설치 명령으로 설치해 주세요(Node.js 24 이상 필요).
+Claude Code 플러그인 · 스킬로 설치하는 방법도 같은 페이지에 있어요.
 이미 설치했다면 ~/.local/bin 폴더가 PATH에 있는지 확인해 주세요.
 설치한 뒤 다시 요청해 주세요.
 ```
@@ -88,6 +87,8 @@ Artifact Box 로그인이 필요해요. 터미널에서 아래 명령으로 로�
 Claude Code에서는 입력창에 ! abox login 을 입력해도 돼요.
 주소가 나오면 브라우저에서 열어 Google로 로그인하고 승인해 주세요.
 원격 서버라면 그 주소를 아무 기기의 브라우저에서 열면 돼요.
+이미 로그인했는데 이 안내가 나오면, 에이전트를 돌리는 도구(Paperclip 등)가 설정 폴더를 바꾼 경우예요.
+그 도구의 에이전트 환경 변수에 ABOX_CONFIG_DIR=<홈 폴더 절대 경로>/.config/abox 를 넣어 주세요.
 ```
 
 - `abox login`은 주소와 코드를 보여 주고, 브라우저에서 승인할 때까지(최대 10분) 기다렸다가 로그인을 마친다. `!`는 사용자가 Claude Code 입력창에서 직접 실행하는 명령이다.

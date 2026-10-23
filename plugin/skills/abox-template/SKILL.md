@@ -26,14 +26,15 @@ description: Creates and updates templates on Artifact Box (artifactbox.app) wit
   Claude Code에서는 입력창에 ! abox login 을 입력해도 돼요.
   주소가 나오면 브라우저에서 열어 Google로 로그인하고 승인해 주세요.
   원격 서버라면 그 주소를 아무 기기의 브라우저에서 열면 돼요.
+  이미 로그인했는데 이 안내가 나오면, 에이전트를 돌리는 도구(Paperclip 등)가 설정 폴더를 바꾼 경우예요.
+  그 도구의 에이전트 환경 변수에 ABOX_CONFIG_DIR=<홈 폴더 절대 경로>/.config/abox 를 넣어 주세요.
   ```
 
 - **`abox` 설치·업데이트도 사용자가 한다.** 설치 스크립트와 `abox update`는 실행하지 않는다. `CLI_UPDATE_AVAILABLE` 경고는 고칠 대상이 아니라 `message`만 전한다. 사용자가 업데이트해 달라고 하면 터미널에서 `abox update`를 실행하라고 안내한다. `abox`가 없으면(command not found, exit 127) 아래 문장을 그대로 전하고 멈춘다.
 
   ```
-  Artifact Box CLI(abox)가 설치돼 있지 않아요. 터미널에서 아래 명령으로 설치해 주세요(Node.js 24 이상 필요).
-    curl -fsSL https://artifactbox.app/install.sh | sh
-  다른 설치 방법(Claude Code 플러그인, 스킬)은 https://artifactbox.app/guide 에 있어요.
+  Artifact Box CLI(abox)가 설치돼 있지 않아요. https://artifactbox.app/guide 의 설치 명령으로 설치해 주세요(Node.js 24 이상 필요).
+  Claude Code 플러그인 · 스킬로 설치하는 방법도 같은 페이지에 있어요.
   이미 설치했다면 ~/.local/bin 폴더가 PATH에 있는지 확인해 주세요.
   설치한 뒤 다시 요청해 주세요.
   ```
