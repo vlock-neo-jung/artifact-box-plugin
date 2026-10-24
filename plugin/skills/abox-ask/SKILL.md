@@ -91,7 +91,7 @@ description: Asks the user for decisions through question pages on Artifact Box 
 1. **찾기**: `abox ls --workspace <주제 워크스페이스> --project <주제 프로젝트 id> --json`(필요하면 `--tag <태그>` · `-q <검색어>`, 없으면 `--project` 없이 같은 워크스페이스 전체)으로 이 결정과 관련된 정의서 · 시안 · 설계 문서 · 리포트를 찾는다. 제목 · 설명으로 맞는지 판단해 맞으면 그 `url`을 그대로 첨부한다.
 2. **캔버스**는 관련 보드를 `<URL>#board=<보드 파일>`로 가리킨다. 보드 파일 이름은 이 세션에서 만든 캔버스면 그 `canvas.json`에서, 아니면 `abox pull <URL> --out <작업 폴더>/<새 폴더> --json`으로 받은 `canvas.json`의 `boards[].file`에서 찾는다.
 3. **없으면 만든다**: 이 질문을 이해하는 데 필요한 설명을 `abox-publish` 스킬의 규칙으로 만들어 주제와 같은 워크스페이스 · 프로젝트에 게시한 뒤 첨부한다(`abox publish … --workspace <주제 워크스페이스> --project <주제 프로젝트 id> --json`). 글 · 표 · 비교면 Markdown, 화면이 걸린 결정이면 캔버스 시안, 차트가 필요하면 HTML이다. 새로 만든 아티팩트는 일반 아티팩트라 다음 질문에서 다시 붙인다.
-4. 질문 아티팩트(자기 주제 포함)는 첨부할 수 없다. 앞 결정은 `related`로 가리킨다. 바깥 웹 문서는 첨부가 아니라 `links`에 둔다.
+4. 질문 아티팩트(자기 주제 포함)는 첨부할 수 없다. 앞 결정은 `related`로 가리킨다. 모음(`type: collection`)도 첨부할 수 없다(「모음은 첨부할 수 없어요. 안의 문서를 첨부해요」): 안의 문서를 원본 URL(`abox info <모음 URL> --json`의 `data.items[].artifact.url`)로 첨부한다. 바깥 웹 문서는 첨부가 아니라 `links`에 둔다. 질문 글(배경 · 옵션 등)에는 아티팩트 URL을 적지 않고 첨부로 붙인다. 질문이 모음에 들어가 공개되면 글 속 URL은 받는 사람에게 원본 id를 알려 준다.
 5. 관련 없는 아티팩트를 개수를 채우려고 붙이지 않는다.
 
 **첨부 `note`**(1~200자, 한 줄)는 「이 첨부에서 무엇을 보면 되는지」를 구체적으로 쓴다.
@@ -208,6 +208,8 @@ q3 재시도 위치 — https://artifactbox.app/a/Xk2vR9pQ7mL4tB8nC1dE5f#q3
 ## 이어 가기
 
 다른 세션에서 사용자가 주제 URL을 주거나, 이 세션의 주제를 다시 볼 때:
+
+- 모음 안에서 복사한 질문 링크(`/a/<모음>/<n>#q3`)를 받으면 그대로 쓰지 않는다(exit 2). `abox info <모음 URL> --json`의 `data.items[]`에서 `item`이 n인 것의 `artifact.url`(질문 아티팩트의 원본 URL)에 `#q3`을 붙여 쓴다.
 
 1. `abox read '<주제 URL>'`로 결정 목록 · 진행 중 질문 전체 · 지난 질문을 Markdown으로 읽는다. 결정된 질문의 전체 내용은 `abox read '<URL>#q5'`로 읽는다.
 2. 답 대기 질문이 있으면 그 번호로 '기다리기'를 한다. 논의 중 질문이 있으면 '답을 받은 뒤'의 `discussing`대로 한다.

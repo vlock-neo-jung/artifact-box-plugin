@@ -240,9 +240,13 @@
 
 ## info
 
-`data`: `id` · `url` · `workspace:{id,kind,name}` · `project:{id,name}` · `dir`(없으면 `null`) · `repo` · `title` · `description` · `tags`(정렬된 문자열 배열) · `type`(`html`|`md`|`canvas`|`question`) · `currentVersion` · `visibility` · `views:{count,lastViewedAt}` · `template` · `live` · `entryPath` · `sourceName` · `versions:[{number,createdAt,restoredFrom,…}]`(최신 먼저) · `boardCount`(캔버스만, 현재 버전의 보드 수)
+`data`: `id` · `url` · `workspace:{id,kind,name}` · `project:{id,name}` · `dir`(없으면 `null`) · `repo` · `title` · `description` · `tags`(정렬된 문자열 배열) · `type`(`html`|`md`|`canvas`|`question`|`collection`) · `currentVersion` · `visibility` · `views:{count,lastViewedAt}` · `template` · `live` · `entryPath` · `sourceName` · `versions:[{number,createdAt,restoredFrom,…}]`(최신 먼저) · `boardCount`(캔버스만, 현재 버전의 보드 수)
 
 `type`이 `question`이면 질문 아티팩트(`abox-ask` 스킬)다. `questions:{total,waiting}`(질문 수 · 답 대기 수)가 있고 `versions`는 비어 있다. 파일이 없어서 수정 게시 · 되돌리기 · `pull`은 거부되고, 질문 아티팩트는 질문의 첨부로 쓸 수 없다.
+
+`type`이 `collection`이면 모음이다. `items`(목차 순서, 아래 'collection'의 항목)가 있고 `versions`는 비어 있다. 수정 게시 · 되돌리기 · `pull`은 거부된다. 모음 항목 주소(`/a/<모음>/<번호>`)를 주면 그 모음의 정보다.
+
+`includedIn:{count,shared:[{id,url,title}]}` — 이 아티팩트가 든 모음 수와, 그중 지금 링크 공개 중인 모음(비공개 아티팩트여도 그 모음의 받는 사람에게 보인다). 든 모음이 없으면 없다.
 
 `live` — `true`면 라이브 아티팩트다. 버전은 v1 하나뿐이고 게시할 때마다 그 내용이 바뀐다(`updatedAt`이 마지막 갱신). 되돌리기는 없다.
 
@@ -252,7 +256,7 @@
 
 ## ls
 
-`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace 없음)]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
+`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace·includedIn 없음, 모음은 items 대신 collection:{itemCount})]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
 
 - `projects`는 그 워크스페이스의 프로젝트(빈 것 포함, 최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다(`--repo`면 그 저장소의 아티팩트가 있는 것만). `count`도 그 프로젝트의 전체 개수다.
 - `--tag`를 주면 프로젝트마다 `matched`(그 태그를 모두 가진 수, 0일 수 있음)가 붙는다. `--repo`와 `--tag`만 따른다.
@@ -334,11 +338,70 @@
 - `tag add`에 `--desc`가 없으면 `MISSING_REQUIRED`(`missing: ["desc"]`). 설명은 1~200자다.
 - `tag rm` — `data:{deleted:true}`. 목록에서만 빠지고 붙어 있던 태그는 그대로다.
 
+## collection
+
+`collection new`:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "url": "https://art.example.com/a/Cm4xT8nV2kL6rB9pW3qJ7d",
+    "artifactId": "Cm4xT8nV2kL6rB9pW3qJ7d",
+    "visibility": { "mode": "private", "expiresAt": null },
+    "project": { "id": "Pq4wT8nV2mK6rX9bL3cH7j", "name": "workspace-artifact" },
+    "workspace": { "id": "Wn3kQ7vR2xL9mT4pB8cJ6d", "kind": "personal", "name": "개인" },
+    "items": [
+      {
+        "item": 1,
+        "type": "md",
+        "template": false,
+        "title": "결제 재시도 정의서",
+        "url": "https://art.example.com/a/Cm4xT8nV2kL6rB9pW3qJ7d/1",
+        "artifact": {
+          "id": "Xk2vR9pQ7mL4tB8nC1dE5f",
+          "url": "https://art.example.com/a/Xk2vR9pQ7mL4tB8nC1dE5f",
+          "visibility": { "mode": "private", "expiresAt": null }
+        }
+      }
+    ],
+    "skipped": [{ "path": "/items/3", "item": 1 }]
+  }
+}
+```
+
+- `items[]` — 목차 순서. `url`은 모음 안의 항목 주소(CLI가 더한다, 모음 안에 보일 글에서 항목을 가리킬 때 쓴다), `item`은 그 번호(뺀 번호는 다시 쓰지 않는다), `artifact`는 원본(그 URL · 공개 상태). 질문 아티팩트면 `artifact.questions:{total,waiting}`도 있다
+- `skipped[]` — 이미 든 것(또는 두 번 준 것)이라 건너뛴 주소. `path`는 요청 안 위치(`/items/3` = 넷째로 준 주소), `item`은 그것이 든 항목 번호
+
+`collection add` · `rm`: `data:{url,items,added,skipped,removed}` — `url`은 모음 URL(모음 자리에 항목 주소를 줬어도), `items`는 바뀐 뒤 목차(`new`와 같은 모양), `added` · `removed`는 이번에 넣고 뺀 항목 번호. 링크 공개 중인 모음에 넣으면 `PUBLIC_UPDATE`.
+
+주소가 맞지 않으면 아무것도 바꾸지 않고 `COLLECTION_INVALID`(exit 2)다. 형식(바깥 주소 · 해시 · 항목 주소 · 다른 모음의 항목 주소)은 CLI가 요청 전에 거부한다:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "COLLECTION_INVALID",
+    "message": "모음에 쓸 수 없는 주소가 있어요(1개). 아무것도 바꾸지 않았어요",
+    "issueCount": 1,
+    "issues": [
+      {
+        "path": "/items/2",
+        "code": "collection-in-collection",
+        "message": "모음 안에 모음은 넣을 수 없어요"
+      }
+    ]
+  }
+}
+```
+
+`issues[].code`: `not-artifact-url`(이 서버 주소가 아님) · `item-not-found`(없음 · 다른 워크스페이스) · `collection-in-collection` · `item-hash`(`#board=` · `#q3`가 붙음) · `collection-item-url`(넣을 주소가 항목 주소) · `other-collection-item`(뺄 주소가 다른 모음의 항목 주소). 넣으면 50개를 넘으면 `LIMIT_EXCEEDED`(exit 5)이고 하나도 넣지 않는다.
+
 ## rollback · rm · open · dashboard
 
 - rollback: `data:{version(새 번호),restoredFrom}` + 공개 중이면 `PUBLIC_UPDATE`. 라이브 아티팩트는 `INVALID_INPUT`(exit 2, `hint`)
 - rm: `data:{deleted:true}`
-- open · dashboard: `data:{opened,url}` (`opened: false`면 브라우저를 열지 못함)
+- open · dashboard: `data:{opened,url}` (`opened: false`면 브라우저를 열지 못함). 모음 항목 주소를 주면 모음 안의 그 아티팩트를 연다
 
 ## 서버 연결 실패 (exit 6)
 
@@ -422,8 +485,9 @@
 | code                            | 뜻                                                                                                 |
 | ------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `DUPLICATE_LOCATION`            | 같은 디렉토리(없으면 같은 프로젝트)·파일명의 아티팩트가 이미 있음(`existingUrl`)                   |
-| `PUBLIC_UPDATE`                 | 공개 중인 아티팩트가 바뀌어 받는 사람에게 바로 보임                                                |
+| `PUBLIC_UPDATE`                 | 공개 중인 아티팩트가 바뀌어(모음은 넣어서) 받는 사람에게 바로 보임                                 |
 | `URL_HOLDERS_CAN_VIEW`          | 공개로 바뀌어 URL을 아는 사람이 열 수 있음(`reshare`)                                              |
+| `COLLECTION_SHOWS_PRIVATE`      | (모음 `share`) 비공개 아티팩트 `count`개도 받는 사람이 모음 안에서 봄(`message`에 제목)            |
 | `ROOT_RELATIVE_PATHS`           | HTML에 `/`로 시작하는 경로가 있음(`files`)                                                         |
 | `CANVAS_MANIFEST_IGNORED`       | (CLI) `index.html`이 있는 폴더라 HTML로 게시했고, 캔버스 매니페스트 같은 `canvas.json`은 읽지 않음 |
 | `TEAM_DEFAULT_WORKSPACE`        | (`workspace use`) 기본이 팀이 되어 `--workspace` 없는 게시를 팀 멤버 모두가 봄                     |
