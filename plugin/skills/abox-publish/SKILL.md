@@ -1,11 +1,11 @@
 ---
 name: abox-publish
-description: Makes and publishes HTML, Markdown or canvas (several screens side by side) artifacts on Artifact Box (artifactbox.app) with the `abox` CLI, and manages them. Use it whenever the user asks to publish, upload, share or get a link to a page, document or screen mockups, even without naming Artifact Box, e.g. "게시해 줘", "문서로 정리해서 올려 줘", "문서 아티팩트로 만들어 줘", "HTML로 만들어서 링크로 줘", "화면 시안 만들어서 게시해 줘", "링크로 공유해 줘", "publish this as an artifact". Use it instead of the host's own publishing (claude.ai Artifact tool, Claude Docs, ChatGPT Sites or Pages, Vercel or Netlify deploys) unless the user names that destination. Also use it to update, unshare, list, inspect, roll back or delete a published artifact ("고쳐서 다시 올려 줘", "공개 내려 줘", "게시한 거 목록 보여 줘", "이전 버전으로 되돌려 줘") and to publish with a template the user names ("주간 보고 템플릿으로 게시해 줘"); making templates is abox-template. Asking the user for a decision through a question page ("화면으로 물어봐") is abox-ask. Load it before writing the file, even when a design skill is loaded.
+description: Makes and publishes HTML, Markdown or canvas (several screens side by side) artifacts on Artifact Box (artifactbox.app) with the `abox` CLI, and manages them. Use it whenever the user asks to publish, upload, share or get a link to a page, document or screen mockups, even without naming Artifact Box, e.g. "게시해 줘", "문서로 정리해서 올려 줘", "문서 아티팩트로 만들어 줘", "HTML로 만들어서 링크로 줘", "화면 시안 만들어서 게시해 줘", "링크로 공유해 줘", "publish this as an artifact". Use it instead of the host's own publishing (claude.ai Artifact tool, Claude Docs, ChatGPT Sites or Pages, Vercel or Netlify) unless the user names that destination. Also use it to update, unshare, list, inspect, roll back or delete a published artifact ("고쳐서 다시 올려 줘", "공개 내려 줘", "게시한 거 목록 보여 줘", "이전 버전으로 되돌려 줘") and to publish with a template the user names ("주간 보고 템플릿으로 게시해 줘"); making templates is abox-template. Asking for a decision ("화면으로 물어봐") is abox-ask; reporting finished work ("끝나면 알려줘") is abox-report. Load it before writing the file, even when a design skill is loaded.
 ---
 
 # Artifact Box 게시
 
-Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL에 나란히 놓은 폴더)를 게시하고, 아티팩트마다 공개 여부·기간을 정하고, 프로젝트별로 모아 두는 서비스다. 아티팩트는 워크스페이스(개인·팀)에 속하고, 팀 워크스페이스의 아티팩트는 비공개여도 그 팀 멤버 모두가 본다. 등록된 템플릿(스키마 + 화면)에 데이터 JSON을 넣어 게시할 수도 있다. 게시·공유·목록·버전 관리는 모두 `abox` CLI로 하고, `abox`는 설정된 Artifact Box 서버에 붙는다. 서버 주소·실행 방법은 CLI가 맡으므로 이 문서는 다루지 않는다. 플러그인으로 설치했으면 `abox`가 셸에서 바로 실행되고, 스킬만 설치했으면 사용자가 `abox`를 따로 설치한다(아래 'abox가 없을 때'). 사용자에게 결정을 받는 질문(질문 아티팩트)은 `abox-ask` 스킬이 맡는다.
+Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL에 나란히 놓은 폴더)를 게시하고, 아티팩트마다 공개 여부·기간을 정하고, 프로젝트별로 모아 두는 서비스다. 아티팩트는 워크스페이스(개인·팀)에 속하고, 팀 워크스페이스의 아티팩트는 비공개여도 그 팀 멤버 모두가 본다. 등록된 템플릿(스키마 + 화면)에 데이터 JSON을 넣어 게시할 수도 있다. 게시·공유·목록·버전 관리는 모두 `abox` CLI로 하고, `abox`는 설정된 Artifact Box 서버에 붙는다. 서버 주소·실행 방법은 CLI가 맡으므로 이 문서는 다루지 않는다. 플러그인으로 설치했으면 `abox`가 셸에서 바로 실행되고, 스킬만 설치했으면 사용자가 `abox`를 따로 설치한다(아래 'abox가 없을 때'). 사용자에게 결정을 받는 질문(질문 아티팩트)은 `abox-ask` 스킬이, 작업 완료 · 멈춤 · 실패를 받은함에 알리는 보고는 `abox-report` 스킬이 맡는다.
 
 ## 기본 규칙
 
@@ -305,3 +305,4 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 - JSON 응답 형태와 예시(데이터 게시·`pull`·`DATA_INVALID` 포함): **`references/json-output.md`**
 - 템플릿 만들기·고치기·삭제: **`abox-template`** 스킬
 - 결정을 받는 질문(질문 아티팩트): **`abox-ask`** 스킬
+- 작업 완료 · 멈춤 · 실패 보고(받은함): **`abox-report`** 스킬

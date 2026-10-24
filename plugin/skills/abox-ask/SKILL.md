@@ -1,11 +1,11 @@
 ---
 name: abox-ask
-description: Asks the user for decisions through question pages on Artifact Box (artifactbox.app) with the `abox` CLI, then waits for the answer they give on the web. Each question carries the work context, background, options, a recommendation and attached artifacts, so someone who knows nothing of the work can decide from the page alone. Use it when the user says to ask through the screen or to keep asking while working ("화면으로 물어봐", "질문 올려 가며 진행해", "결정할 거 있으면 abox로 물어봐"), when project or global instructions say to ask decisions as abox questions ("결정이 필요하면 abox 질문으로 묻는다"), when the user gives a question artifact URL to continue ("이 질문 이어서 진행해"), and when the user says "답했어" after a question was posted. Not for yes/no confirmations, trivial choices (one name, one file), permission or risky-action checks (delete, deploy, push), or what the user already answered in the terminal. Publishing pages and documents themselves is abox-publish.
+description: Asks the user for decisions through question pages on Artifact Box (artifactbox.app) with the `abox` CLI, then waits for the answer they give on the web. Each question carries the work context, background, options, a recommendation and attached artifacts, so someone who knows nothing of the work can decide from the page alone. Use it when the user says to ask through the screen or to keep asking while working ("화면으로 물어봐", "질문 올려 가며 진행해", "결정할 거 있으면 abox로 물어봐"), when project or global instructions say to ask decisions as abox questions ("결정이 필요하면 abox 질문으로 묻는다"), when the user gives a question artifact URL to continue ("이 질문 이어서 진행해"), and when the user says "답했어" after a question was posted. Not for yes/no confirmations, trivial choices (one name, one file), permission or risky-action checks (delete, deploy, push), or what the user already answered in the terminal. Publishing pages and documents themselves is abox-publish. Reporting finished or stopped work to the inbox ("끝나면 알려줘") is abox-report.
 ---
 
 # Artifact Box 질문
 
-질문 아티팩트는 정해 가는 대상 하나(주제, 예: 「결제 재시도 설계」)를 담는 아티팩트이고, 그 안에 질문이 `q1`, `q2`…로 쌓인다. 에이전트는 결정이 필요할 때 질문을 올리고 `<URL>#q3` 링크를 사용자에게 준 뒤 `abox wait`로 답을 기다린다. 워크스페이스 멤버는 웹(휴대폰 포함)에서 답한다.
+질문 아티팩트는 정해 가는 대상 하나(주제, 예: 「결제 재시도 설계」)를 담는 아티팩트이고, 그 안에 질문이 `q1`, `q2`…로 쌓인다. 에이전트는 결정이 필요할 때 질문을 올리고 `<URL>#q3` 링크를 사용자에게 준 뒤 `abox wait`로 답을 기다린다. 워크스페이스 멤버는 웹(휴대폰 포함)에서 답한다. 답을 기다리지 않고 작업 완료 · 멈춤 · 실패를 알리는 보고는 `abox-report` 스킬이 맡는다.
 
 이 스킬의 핵심은 질문이 아니라 설명이다. 사용자는 여러 작업을 오가므로 질문만 보고는 무엇을 묻는지 모른다. 질문마다 작업 맥락 · 배경 · 옵션 상세 · 추천 근거와 첨부 아티팩트를 반드시 담아, 그 작업을 전혀 모르는 사람이 요약만 읽어도 큰 그림을 잡고 펼쳐 읽으면 다른 곳을 찾아보지 않고 결정할 수 있게 쓴다. 형식을 줄이거나 칸을 비우는 쪽으로 타협하지 않는다.
 
@@ -244,3 +244,4 @@ q3 재시도 위치 — https://artifactbox.app/a/Xk2vR9pQ7mL4tB8nC1dE5f#q3
 - 질문 JSON의 칸 · 한도 · 첨부 규칙: **`references/question-json.md`**
 - 질문 명령의 `--json` 응답과 오류: **`references/json-output.md`**
 - 첨부할 문서 · 시안 만들기, 워크스페이스 · 미리 만든 태그 · 공유 관리: **`abox-publish`** 스킬
+- 작업 완료 · 멈춤 · 실패 보고(받은함): **`abox-report`** 스킬

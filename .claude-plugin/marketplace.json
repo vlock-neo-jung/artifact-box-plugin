@@ -8,7 +8,7 @@
     {
       "name": "artifact-box",
       "source": "./plugin",
-      "description": "Publish, update, share and list HTML/Markdown artifacts with the abox CLI (Artifact Box), and make templates (JSON Schema + screen + sample data) to publish artifacts from data."
+      "description": "Publish, update, share and list HTML/Markdown artifacts with the abox CLI (Artifact Box), make templates (JSON Schema + screen + sample data) to publish artifacts from data, ask decisions as question pages and report finished work to the inbox."
     }
   ]
 }
