@@ -39,7 +39,7 @@
 **경로·외부 자원**
 
 - [ ] 경로는 상대 경로(`./app.js`·`./img/logo.svg`)로 쓴다. `/`로 시작하면 게시 화면에서 깨지고 `ROOT_RELATIVE_PATHS` 경고가 난다.
-- [ ] 외부 스크립트·스타일·이미지·폰트는 `https://` 주소만 열린다(sandbox CSP).
+- [ ] 외부 스크립트·스타일·이미지·폰트·영상·소리는 `https://` 주소만 열린다(sandbox CSP).
 - [ ] CDN 주소는 정확한 버전으로 고정한다(`https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js`). `@latest`나 버전 없는 주소를 쓰지 않는다. 고정된 템플릿 버전으로 만든 아티팩트가 나중에도 같은 모습으로 열려야 한다.
 - [ ] `window.claude.*`를 쓰지 않는다. `localStorage`는 새로고침하면 초기화된다.
 - [ ] 이미지는 `screen/`의 고정 이미지(로고 등), 데이터의 https 주소, 작은 data URI로 넣는다. 아티팩트마다 로컬 이미지를 첨부하는 방법은 없다.

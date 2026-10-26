@@ -50,7 +50,7 @@ Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL�
 
 - `.html` 파일 하나, 또는 `index.html`이 있는 폴더로 만든다. 빌드 없이 브라우저에서 바로 열려야 한다(CDN `<script>`·import map 사용 가능).
 - 경로는 상대 경로(`./app.js`)로 쓴다. `/`로 시작하는 경로(`src="/app.js"`)는 게시 화면에서 깨진다.
-- 외부 스크립트·스타일·폰트·이미지는 `https://` 주소만 열린다. CDN 주소는 정확한 버전으로 고정한다(`chart.js@4.4.1`).
+- 외부 스크립트·스타일·폰트·이미지·영상·소리는 `https://` 주소만 열린다. CDN 주소는 정확한 버전으로 고정한다(`chart.js@4.4.1`).
 - `<!doctype html>`·`<head>`는 있어도 없어도 된다. 없으면 서버가 감싼다.
 - `window.claude.*` 같은 호스트 전용 런타임 기능(저장소·Claude 호출·파일 등)은 Artifact Box에서 동작하지 않으니 쓰지 않는다. `localStorage`는 써도 되지만 새로고침하면 초기화된다.
 
