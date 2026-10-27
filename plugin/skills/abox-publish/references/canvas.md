@@ -21,6 +21,7 @@
 ```
 
 - 최상위에 `canvas.json`을 두고 `index.html`은 두지 않는다. `index.html`이 있으면 HTML로 게시되고 경고 `CANVAS_MANIFEST_IGNORED`가 붙는다.
+- 최상위에 다른 용도의 `deck.json`이 있으면 슬라이드 매니페스트와 겹쳐 exit 2다(「canvas.json과 deck.json 중 하나만 둬요」). 그 파일의 이름을 바꾼다.
 - 폴더 이름은 캔버스마다 다르게 짓는다. 서버가 같은 위치(`DUPLICATE_LOCATION`)를 폴더 이름으로 판정한다.
 - 보드 파일 경로는 영문 소문자 · 숫자 · `-`로 짓는다(`console/model-list.html`). 경로가 보드 링크의 주소가 된다.
 

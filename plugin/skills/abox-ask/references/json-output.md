@@ -83,7 +83,7 @@
   - `questions`: 모든 질문의 요약(q1부터). 요약은 `number` · `kind` · `label` · `title` · `status` · `revises` · `supersededBy` · `askedAt` · `answer`(글은 200자까지, 잘렸으면 `textTruncated: true`, 객관식이면 `optionTitle`) · `withdrawal`
   - `active`: 진행 중(`waiting` · `discussing`) 질문 전체(본문 `body` 포함). 진행 중이 없으면 마지막 질문 하나
   - `allAttachments`: 주제의 모든 첨부 `[{id, title, type, shareActive}]`(중복 없이). 오너에게만 온다. 공개할 첨부를 찾을 때 쓴다
-- 질문 하나 `abox read '<URL>#q3' --json`: `data:{artifact, question}`. `question`은 요약 칸 + 전체 답 + `body`(첨부는 `{note, available, attachedVersion?, target?:{id,url,type,title,description,board?,currentVersion}}`)
+- 질문 하나 `abox read '<URL>#q3' --json`: `data:{artifact, question}`. `question`은 요약 칸 + 전체 답 + `body`(첨부는 `{note, available, attachedVersion?, target?:{id,url,type,title,description,board?,slide?,currentVersion}}`. `board:{file,title}` · `slide:{file,title,number}`는 첨부가 가리킨 보드 · 장이고, 여는 버전에 없으면 `title`(과 `number`)이 `null`이다)
 
 ## answer · withdraw
 

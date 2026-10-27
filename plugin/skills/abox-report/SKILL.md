@@ -85,7 +85,7 @@ description: Sends a report to the user's Artifact Box inbox with `abox report` 
 보고의 칸은 모두 짧은 한 줄이다. 설계 변경 · 측정 결과 · 오류 로그 · 긴 목록처럼 칸에 다 들어가지 않는 결과는 `abox-publish` 스킬의 규칙으로 문서(대개 Markdown)를 게시해 첨부한다. 이 작업에서 게시한 결과물(시안 · 정리 문서)도 첨부한다. 첨부는 없어도 되고 5개까지다.
 
 - 첨부는 보고와 같은 워크스페이스의 아티팩트여야 한다('1. 올릴 곳 정하기').
-- 캔버스는 `<URL>#board=<보드 파일>`로 보드 하나를 가리킬 수 있다.
+- 캔버스는 `<URL>#board=<보드 파일>`로 보드 하나를, 슬라이드는 `<URL>#slide=<장 파일>`로 장 하나를 가리킬 수 있다(이 작업에서 고친 장 등).
 - 질문 아티팩트는 첨부할 수 없다. 모음도 첨부할 수 없다(「모음은 첨부할 수 없어요. 안의 문서를 첨부해요」): 안의 문서를 원본 URL로 첨부한다. PR · CI · 이슈 같은 바깥 주소는 첨부가 아니라 `links`에 둔다.
 - 관련 없는 아티팩트를 개수를 채우려고 붙이지 않는다.
 
@@ -187,6 +187,8 @@ abox report <작업 폴더>/payment-retry-report.json --project Pq4wT8nV2mK6rX9b
 | 모음 · 모음 항목 주소(`/a/<모음>/<번호>`)    | 안의 문서를 원본 URL(`abox info <모음 URL> --json`의 `data.items[].artifact.url`)로 첨부한다                                                                         |
 | 캔버스가 아닌데 `#board=`가 붙음             | `#board=…`를 지운다                                                                                                                                                  |
 | 그 보드가 캔버스의 지금 버전에 없음          | `abox pull <캔버스 URL> --out <작업 폴더>/<새 폴더> --json`으로 받은 `canvas.json`의 `boards[].file`에서 보드 파일 이름을 확인해 고친다                              |
+| 슬라이드가 아닌데 `#slide=`가 붙음           | `#slide=…`를 지운다                                                                                                                                                  |
+| 그 장이 슬라이드의 지금 버전에 없음          | `abox pull <슬라이드 URL> --out <작업 폴더>/<새 폴더> --json`으로 받은 `deck.json`의 `slides[].file`에서 장 파일 이름을 확인해 고친다                                |
 
 ## 참고
 
