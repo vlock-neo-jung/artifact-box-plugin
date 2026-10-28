@@ -288,7 +288,7 @@
 
 ## ls
 
-`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace·includedIn 없음, 모음은 items 대신 collection:{itemCount})]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음)
+`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace·includedIn 없음, 모음은 items 대신 collection:{itemCount})]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음) · `search?`(`-q`로 찾았을 때만)
 
 - `projects`는 그 워크스페이스의 프로젝트(빈 것 포함, 최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다(`--repo`면 그 저장소의 아티팩트가 있는 것만). `count`도 그 프로젝트의 전체 개수다.
 - `--tag`를 주면 프로젝트마다 `matched`(그 태그를 모두 가진 수, 0일 수 있음)가 붙는다. `--repo`와 `--tag`만 따른다.
@@ -297,6 +297,24 @@
 - `--project <id>`만 주면 그 프로젝트의 워크스페이스를 조회한다(`data.workspace`). 없거나 볼 수 없는 프로젝트면 `NOT_FOUND`(exit 4)다. `--workspace`와 함께 주면 그 워크스페이스에서 찾고, 그곳의 프로젝트가 아니면 `items`가 비어 있다.
 
 `--template <이름>`이면 그 템플릿으로 만든 것만 나온다. 없는 템플릿 이름이면 `items`가 비어 있다(오류 아님).
+
+`-q`(단어가 남는 검색어)면 `items`는 정확히 맞는 문서만이고(관련도 순, 200개까지, `nextCursor` 없음) `search`가 붙는다. 읽는 법은 SKILL.md의 '검색 결과 읽기'다.
+
+```json
+"search": {
+  "words": ["예산", "한도"],
+  "searched": 19,
+  "exact": 0,
+  "outside": { "exact": 0, "hasSimilar": true },
+  "semantic": true,
+  "similar": []
+}
+```
+
+- `words`: 검색어를 나눈 단어(앞 `#`을 뗌). `searched`: 필터만 건 아티팩트 수. `exact`: 정확히 맞는 문서의 전체 수(200보다 많으면 `items`는 앞 200개)
+- `outside`: 필터 밖의 정확히 맞는 수(`exact`)와 비슷한 문서가 있는지(`hasSimilar`). 필터가 없으면 `{exact:0, hasSimilar:false}`
+- `semantic`: false면 비슷한 문서를 찾지 못했다. `similar`가 비고 `outside.hasSimilar`도 false다(「없음」이 아니라 「찾지 못함」)
+- `similar`: 비슷한 문서. `items`와 같은 요약, 가까운 순 5개까지, 점수 없음. 필터를 따른다
 
 ## edit
 

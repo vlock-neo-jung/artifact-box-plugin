@@ -91,7 +91,7 @@
 
 ## ls --type question
 
-`data.items[]`는 다른 아티팩트와 같은 요약이고 `type`이 `question`이다. `questions:{total, waiting}`(질문 수 · 답 대기 수)가 있다.
+`data.items[]`는 다른 아티팩트와 같은 요약이고 `type`이 `question`이다. `questions:{total, waiting}`(질문 수 · 답 대기 수)가 있다. `-q`면 `data.items`는 정확히 맞는 주제만이고, 비슷한 주제는 `data.search.similar`에 온다(`data.search`의 칸은 `abox-publish` 스킬 `references/json-output.md`의 'ls').
 
 ## 오류
 

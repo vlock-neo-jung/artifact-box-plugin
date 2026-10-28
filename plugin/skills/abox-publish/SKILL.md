@@ -235,7 +235,7 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 
 결과는 '새 게시'의 '결과 보고'처럼 알린다. 템플릿은 `data.template`으로 `주간 보고 템플릿 v3`처럼 알린다(아티팩트 버전과 섞이지 않게 늘 `템플릿 vN`).
 
-템플릿 새 게시는 같은 요청을 다시 보내면 아티팩트가 하나 더 생긴다. exit 6(서버 연결 실패·서버 오류)이면 다시 실행하기 전에 `abox ls --template <이름> -q <제목> --json`으로 같은 제목이 이미 게시됐는지 확인하고, 있으면 그 URL을 전한다.
+템플릿 새 게시는 같은 요청을 다시 보내면 아티팩트가 하나 더 생긴다. exit 6(서버 연결 실패·서버 오류)이면 다시 실행하기 전에 `abox ls --template <이름> -q <제목> --json`(게시에 넘긴 `--workspace`·`--project` 그대로)으로 같은 제목이 이미 게시됐는지 확인하고, `data.items` 중 제목이 같은 것이 있으면 그 URL을 전한다('검색 결과 읽기'의 중복 확인).
 
 ### 고쳐서 다시 게시
 
@@ -296,7 +296,7 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 | 링크로 공개 (기본 7일)   | `abox share <URL> [--expires 1d\|7d\|30d\|never] --json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | 비공개로                 | `abox unshare <URL> --json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | 정보·열람 수             | `abox info <URL> --json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| 목록                     | `abox ls [--project <id>] [--dir D] [--repo R] [--type html\|md\|canvas\|slides\|question\|collection] [--public\|--private] [-q 검색어] [--tag T…] [--template 이름] [--workspace W] --json` (한 워크스페이스의 목록이 프로젝트별로 묶여 나온다. `--project`만 주면 그 프로젝트의 워크스페이스다. 태그를 여러 번 주면 모두 가진 것만, `--template`은 그 템플릿으로 만든 것만, `-q`는 제목·설명·디렉토리·프로젝트 검색)                                                                                                          |
+| 목록                     | `abox ls [--project <id>] [--dir D] [--repo R] [--type html\|md\|canvas\|slides\|question\|collection] [--public\|--private] [-q 검색어] [--tag T…] [--template 이름] [--workspace W] --json` (한 워크스페이스의 목록이 프로젝트별로 묶여 나온다. `--project`만 주면 그 프로젝트의 워크스페이스다. 태그를 여러 번 주면 모두 가진 것만, `--template`은 그 템플릿으로 만든 것만, `-q`는 제목·설명·태그 검색 — 아래 '검색 결과 읽기')                                                                                               |
 | 정보만 바꾸기(파일 없이) | `abox edit <URL> [--title T] [--desc S] [--project <id>] [--dir D] [--repo R] [--add-tag T…] [--remove-tag T…] --json` ("회의록 태그 달아 줘" → `--add-tag 회의록`. `--project`는 같은 워크스페이스의 프로젝트로 옮기기, id 찾기는 '프로젝트'의 1)                                                                                                                                                                                                                                                                               |
 | 되돌리기                 | `abox rollback <URL> <버전> --json` (버전은 `2` 또는 `v2`, 그 내용이 새 버전으로 추가된다. 라이브 아티팩트(`live: true`)는 버전이 없어 되돌릴 수 없다)                                                                                                                                                                                                                                                                                                                                                                           |
 | 프로젝트 관리            | `abox project ls [--workspace W] --json` · `abox project info <id> --json` · `abox project add <이름> [--desc S] [--workspace W] --json` · `abox project edit <id> [--name N] [--desc S] --json` · `abox project rm <id> --json` (게시할 프로젝트를 정할 때('프로젝트')가 아니면 사용자가 요청할 때만 한다. `--desc ""`는 설명을 지운다. `rm`은 빈 프로젝트만 지운다: `PROJECT_NOT_EMPTY`면 아티팩트를 대신 옮기거나 지우지 않고 `abox ls --project <id> --json`의 목록을 보여 준 뒤 어떻게 할지 묻는다. 레포 연결은 '프로젝트') |
@@ -309,6 +309,17 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 - `URL_HOLDERS_CAN_VIEW` 경고는 "이 URL을 이미 아는 사람도 열 수 있다"는 뜻이다. 그대로 알린다. `reshare: true`면 예전에 URL을 받은 사람도 다시 열 수 있다고 덧붙인다.
 - `abox open <URL>`(오너 미리보기)·`abox dashboard`는 이 컴퓨터의 브라우저를 여는 명령이다. 사용자가 브라우저로 보고 싶다고 할 때만 쓴다.
 - `ls` 결과에 `nextCursor`가 있으면 목록이 잘린 것이다. 다음 페이지 옵션은 없으니 `--project`·`--dir`·`--type`·`-q` 등으로 범위를 좁혀 다시 조회한다.
+
+### 검색 결과 읽기
+
+`-q`는 제목·설명·태그에서 찾는다(본문·디렉토리·프로젝트 이름은 찾지 않는다). 검색어의 단어가 모두 들어 있는 정확히 맞는 문서는 `data.items`에, 단어가 다 있지는 않지만 뜻이 가까운 비슷한 문서는 `data.search.similar`에 온다(칸은 `references/json-output.md`의 'ls'). 정확히 맞는 문서도 단어가 모두 들어 있을 뿐이니 제목·설명으로 찾던 것인지 보고 말한다. `data.search`가 없으면 비슷한 문서·필터 밖 정보가 없는 결과다(검색을 모르는 서버, 공백·`#`뿐인 검색어): `data.items`를 제목·설명으로 판단하고 「없다」고 단정하지 않는다.
+
+- **「없다」고 말해도 되는 때**는 `data.search`의 `exact`가 0, `outside.exact`가 0, `outside.hasSimilar`가 false, `semantic`이 true이고, `similar`를 읽어 보고 찾는 것이 아니라고 판단했을 때뿐이다.
+- 필터 밖에 있으면(`outside.exact` > 0 또는 `outside.hasSimilar` true) 필터(`--project`·`--dir`·`--repo`·`--type`·`--public`·`--private`·`--tag`·`--template`)를 빼고 `--workspace <data.workspace.id>`로 다시 찾는다. 주제 찾기·중복 확인처럼 찾는 곳이 정해진 확인은 필터 밖을 넓히지 않는다.
+- 정확히 맞는 문서가 없고 비슷한 문서가 있으면 「정확히 맞는 건 없고, 가장 가까운 건 「…」예요」처럼 말하고 찾던 것인지 판단한다.
+- `semantic`이 false면 비슷한 문서를 찾지 못한 것이다. 「없다」고 하지 않고 비슷한 문서는 확인하지 못했다고 덧붙인다.
+- `exact`가 200보다 크면 앞 200개만 온 것이다. 단어를 더 넣어 좁힌다.
+- **중복 확인**(같은 것이 이미 올라갔는지)은 `data.items` 중 제목이 같은 것으로만 판단한다. 정확히 맞는 문서는 제목이 같다는 뜻이 아니고, 비슷한 문서는 같은 문서가 아니다. 올렸을 때와 같은 `--workspace`·`--project`·`--template`으로 찾는다. 검색어는 100자까지라 제목이 100자를 넘으면 앞 100자로 찾는다.
 
 ## 실패 처리
 
