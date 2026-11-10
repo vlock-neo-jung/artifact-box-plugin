@@ -1,11 +1,11 @@
 ---
 name: abox-publish
-description: Makes and publishes HTML, Markdown, canvas (mockups side by side) or slides (decks to present) artifacts on Artifact Box with the `abox` CLI. Use it whenever a page, document, mockups or presentation should be published, uploaded, shared or linked, even without naming Artifact Box, e.g. "게시해 줘", "문서로 정리해서 올려 줘", "문서 아티팩트로 만들어 줘", "HTML로 만들어서 링크로 줘", "화면 시안 만들어서 게시해 줘", "슬라이드로 만들어 줘", "발표 자료(PT · 덱) 만들어 줘", "링크로 공유해 줘". Use it instead of the host's publishing or slide tools (claude.ai Artifacts or Slides, Claude Docs, pptx, ChatGPT Sites or Pages, Vercel) unless the user names that destination. Also to update, unshare, list, roll back or delete one ("고쳐서 다시 올려 줘", "공개 내려 줘", "게시한 거 목록 보여 줘", "이전 버전으로 되돌려 줘"), to bundle them in one link ("모음으로 묶어 줘", "링크 하나로 모아 줘") and to publish with a named template ("주간 보고 템플릿으로 게시해 줘"); making templates is abox-template. Decisions ("화면으로 물어봐") are abox-ask; reports ("끝나면 알려줘") are abox-report. Load it before writing the file, even with a design skill loaded.
+description: Makes and publishes HTML, Markdown, canvas (mockups side by side) or slides (decks to present) artifacts on Artifact Box with the `abox` CLI. Use it whenever a page, document, mockups or presentation should be published, uploaded, shared or linked, even without naming Artifact Box, e.g. "게시해 줘", "문서로 정리해서 올려 줘", "문서 아티팩트로 만들어 줘", "HTML로 만들어서 링크로 줘", "화면 시안 만들어서 게시해 줘", "슬라이드로 만들어 줘", "발표 자료(PT · 덱) 만들어 줘", "링크로 공유해 줘". Use it instead of the host's publishing or slide tools (claude.ai Artifacts or Slides, Claude Docs, pptx, ChatGPT Sites or Pages, Vercel) unless the user names one. Also to update, unshare, list, roll back or delete one ("고쳐서 다시 올려 줘", "공개 내려 줘", "게시한 거 목록 보여 줘", "이전 버전으로 되돌려 줘"), to continue one ("이 문서 이어서 작업해"), to bundle them in one link ("모음으로 묶어 줘", "링크 하나로 모아 줘") and to publish with a named template ("주간 보고 템플릿으로 게시해 줘"); making templates is abox-template. Decisions ("화면으로 물어봐") are abox-ask; reports ("끝나면 알려줘") are abox-report. Load it before writing the file, even with a design skill.
 ---
 
 # Artifact Box 게시
 
-Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL에 나란히 놓은 폴더), 슬라이드(한 장씩 넘겨 발표하고 PDF로 인쇄하는 장 폴더)를 게시하고, 아티팩트마다 공개 여부·기간을 정하고, 프로젝트별로 모아 두는 서비스다. 여러 아티팩트를 링크 하나로 묶는 모음도 만든다(아래 '모음'). 아티팩트는 워크스페이스(개인·팀)에 속하고, 팀 워크스페이스의 아티팩트는 비공개여도 그 팀 멤버 모두가 본다. 등록된 템플릿(스키마 + 화면)에 데이터 JSON을 넣어 게시할 수도 있다. 게시·공유·목록·버전 관리는 모두 `abox` CLI로 하고, `abox`는 설정된 Artifact Box 서버에 붙는다. 서버 주소·실행 방법은 CLI가 맡으므로 이 문서는 다루지 않는다. 플러그인으로 설치했으면 `abox`가 셸에서 바로 실행되고, 스킬만 설치했으면 사용자가 `abox`를 따로 설치한다(아래 'abox가 없을 때'). 사용자에게 결정을 받는 질문(질문 아티팩트)은 `abox-ask` 스킬이, 작업 완료 · 멈춤 · 실패를 받은함에 알리는 보고는 `abox-report` 스킬이 맡는다.
+Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL에 나란히 놓은 폴더), 슬라이드(한 장씩 넘겨 발표하고 PDF로 인쇄하는 장 폴더)를 게시하고, 아티팩트마다 공개 여부·기간을 정하고, 프로젝트별로 모아 두는 서비스다. 여러 아티팩트를 링크 하나로 묶는 모음도 만든다(아래 '모음'). 문서에는 원본 데이터 · 상세 분석 같은 파일을 한 줄 설명과 함께 첨부 파일로 붙인다(아래 '첨부 파일'). 아티팩트는 워크스페이스(개인·팀)에 속하고, 팀 워크스페이스의 아티팩트는 비공개여도 그 팀 멤버 모두가 본다. 등록된 템플릿(스키마 + 화면)에 데이터 JSON을 넣어 게시할 수도 있다. 게시·공유·목록·버전 관리는 모두 `abox` CLI로 하고, `abox`는 설정된 Artifact Box 서버에 붙는다. 서버 주소·실행 방법은 CLI가 맡으므로 이 문서는 다루지 않는다. 플러그인으로 설치했으면 `abox`가 셸에서 바로 실행되고, 스킬만 설치했으면 사용자가 `abox`를 따로 설치한다(아래 'abox가 없을 때'). 사용자에게 결정을 받는 질문(질문 아티팩트)은 `abox-ask` 스킬이, 작업 완료 · 멈춤 · 실패를 받은함에 알리는 보고는 `abox-report` 스킬이 맡는다.
 
 ## 기본 규칙
 
@@ -41,7 +41,7 @@ Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL�
 
 ### Markdown
 
-- `.md` 파일 하나로 만들고 2MB를 넘지 않는다. 다른 파일을 함께 올릴 수 없으니 이미지는 `https://` 주소로만 넣는다.
+- `.md` 파일 하나로 만들고 2MB를 넘지 않는다. 다른 파일을 함께 올릴 수 없으니 이미지는 `https://` 주소로만 넣는다. 첨부 파일로 붙인 이미지도 본문에는 넣지 않는다.
 - GFM(표·체크리스트·취소선), 코드 블록, ` ```mermaid ` 다이어그램이 그려진다.
 - 글꼴·색·다크 모드·폭은 서버가 입힌다. 모양을 내려고 HTML·CSS를 넣지 않고, 디자인 스킬도 쓰지 않는다.
 - 맨 위에 `# 제목`과 무엇을 다루고 결론이 무엇인지 한두 문장을 둔다.
@@ -178,6 +178,7 @@ grep -h -m1 "Artifact Box 프로젝트:" "$(git rev-parse --show-toplevel)/AGENT
 - 프로젝트: `data.project.name`. 이번에 `abox project add`로 만들었으면 "새 프로젝트를 만들었어요: X"라고 알린다(오타였는지 사용자가 알아채게).
 - 프로젝트를 정하지 못해('프로젝트'의 3) `미분류`에 게시했고 작업 디렉토리가 git 저장소면 한 줄을 덧붙인다: "이 레포는 Artifact Box 프로젝트에 연결돼 있지 않아 미분류에 넣었어요. '이 레포를 <프로젝트>에 연결해 줘'라고 하면 연결해 드려요."
 - 자동으로 붙인 태그는 `태그(자동): 설계, 작업계획서`처럼 따로 적는다(사용자가 말한 태그와 섞지 않는다).
+- 첨부 파일을 붙였으면 아래 '첨부 파일'의 '결과 보고'대로 알린다.
 
 ### 라이브 아티팩트
 
@@ -185,7 +186,7 @@ grep -h -m1 "Artifact Box 프로젝트:" "$(git rev-parse --show-toplevel)/AGENT
 
 ## 수정 게시
 
-같은 아티팩트를 고쳤으면 새로 게시하지 말고 `--url`로 수정 게시한다. `--title`·`--desc`·`--dir`·`--repo`·`--tag`는 바꿀 때만 넘긴다. `--tag`를 넘기면 태그 전체가 그 값으로 바뀐다. 미리 만든 태그는 자동으로 붙이지 않는다. `--project <id>`는 사용자가 다른 프로젝트로 옮겨 달라고 할 때만 넘긴다(id 찾기는 '프로젝트'의 1과 같고, 같은 워크스페이스의 프로젝트로만 옮길 수 있다). 레포 연결 id는 넘기지 않는다. 파일은 그대로 두고 정보(제목·설명·프로젝트·디렉토리·저장소·태그)만 바꿀 때는 `abox edit`을 쓴다(아래 표).
+같은 아티팩트를 고쳤으면 새로 게시하지 말고 `--url`로 수정 게시한다. `--title`·`--desc`·`--dir`·`--repo`·`--tag`는 바꿀 때만 넘긴다. `--tag`를 넘기면 태그 전체가 그 값으로 바뀐다. 미리 만든 태그는 자동으로 붙이지 않는다. `--project <id>`는 사용자가 다른 프로젝트로 옮겨 달라고 할 때만 넘긴다(id 찾기는 '프로젝트'의 1과 같고, 같은 워크스페이스의 프로젝트로만 옮길 수 있다). 레포 연결 id는 넘기지 않는다. 첨부 파일은 넘기지 않으면 설명과 함께 이어받는다(아래 '첨부 파일'). 파일은 그대로 두고 정보(제목·설명·프로젝트·디렉토리·저장소·태그)만 바꿀 때는 `abox edit`을 쓴다(아래 표).
 
 ```bash
 abox publish <작업 폴더>/latency-dashboard.html --url https://art.example.com/a/Xk2vR9pQ7mL4tB8nC1dE5f --json
@@ -195,7 +196,7 @@ abox publish <작업 폴더>/latency-dashboard.html --url https://art.example.co
 
 게시한 파일이 작업 폴더에 없으면(다른 세션 등) 다시 만들지 말고 먼저 받는다. 다시 만들면 고치지 않은 파일까지 달라진다. 템플릿으로 만든 아티팩트는 아래 '템플릿으로 게시'의 '고쳐서 다시 게시'를 따른다.
 
-1. `abox pull <URL> --out <작업 폴더>/<새 폴더 이름> --json`으로 받는다(`--version N`으로 이전 버전). `--out` 자리에 이미 무엇이 있으면 `INVALID_INPUT`이니 지우지 말고 다른 이름으로 받는다.
+1. `abox pull <URL> --out <작업 폴더>/<새 폴더 이름> --json`으로 받는다(`--version N`으로 이전 버전). `--out` 자리에 이미 무엇이 있으면 `INVALID_INPUT`이니 지우지 말고 다른 이름으로 받는다. 문서만 받아진다. 첨부 파일은 받지 않아도 수정 게시가 이어받는다.
 2. 받은 파일(`data.path` 아래 `data.files`)을 고친다.
 3. `abox publish <data.publishPath> --url <URL> --json`으로 수정 게시한다. `publishPath`는 받은 폴더(캔버스, 슬라이드, 진입 파일이 `index.html`인 HTML — 더한 파일도 함께 올라간다)이거나, 파일 하나로 게시한 HTML·Markdown이면 그 파일이다.
 
@@ -212,6 +213,65 @@ URL을 모르면 `abox ls --project <id> --json`(사용자가 말한 프로젝�
 | `unchanged`        | 바뀐 것 없음                                                                                                  |
 
 `warnings`에 `DUPLICATE_LOCATION`이 있으면 같은 위치에 이미 아티팩트가 있다는 뜻이다. `existingUrl`을 사용자에게 알리고 수정 게시였는지 묻는다. 새로 만든 쪽을 임의로 지우지 않는다. `ROOT_RELATIVE_PATHS`가 있으면 파일의 `/…` 경로를 `./…`로 고쳐 다시 수정 게시한다. 슬라이드(캔버스)로 만들었는데 `DECK_MANIFEST_IGNORED`(`CANVAS_MANIFEST_IGNORED`)가 오면 폴더 최상위의 `index.html` 때문에 HTML로 게시된 것이다. 같은 폴더를 `--exclude index.html`을 붙여 `--url` 없이 다시 게시하고(파일은 지우지 않는다), 잘못 생긴 HTML 아티팩트의 URL은 사용자에게 알린다(임의로 지우지 않는다). 이때 온 `DUPLICATE_LOCATION`이 그 잘못 생긴 HTML 아티팩트를 가리키면 수정 게시였는지 묻지 않고 그 사실을 함께 알리기만 한다.
+
+## 첨부 파일
+
+문서에 원본 데이터 · 상세 분석 · 견적서 같은 파일을 한 줄 설명과 함께 붙인다. 본문은 사람이 읽을 결론 · 요약이고, 상세는 첨부 파일에 담아 사람은 화면 위 [첨부 파일]에서 내려받고 다음 에이전트는 설명을 보고 필요한 것만 받아 읽는다. 첨부 파일은 문서 버전의 일부라 공개 · 버전 · 되돌리기를 문서와 함께 따르고, 링크로 공개하면 받는 사람도 내려받는다.
+
+### 붙일지 정하기 (게시할 때마다)
+
+사용자가 붙이라고 한 파일은 붙이고, 붙이지 말라고 하면 붙이지 않는다. 말이 없으면 스스로 판단한다.
+
+| 붙인다                                                                                                                                                                  | 붙이지 않는다                                                                                                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 본문에 다 담기 어렵지만 이어 일할 때 필요한 것: 분석에 쓴 원본 데이터, 상세 분석(분류 기준 · 계산 과정 · 전체 표), 근거(조사 원문 정리 · 측정 결과), 재현에 필요한 로그 | 비밀(키 · 토큰 · `.env` 등, CLI도 거부한다)                                                                                                                          |
+| 받는 사람에게 전할 부가 자료(견적서 PDF, 원본 엑셀 등)                                                                                                                  | 개인정보(고객 이름 · 연락처 · 주민번호 등)가 든 파일. 사용자가 붙이라고 하지 않았으면 빼고, 결과 보고에 「고객 연락처가 든 원본은 붙이지 않았어요」처럼 한 줄 알린다 |
+|                                                                                                                                                                         | 본문과 같은 내용, 작업 중간 파일(임시 스크립트 · 캐시 · 시험 출력), 레포에서 바로 찾을 수 있는 코드                                                                  |
+
+- 개수를 채우려고 붙이지 않는다. 상세 분석은 에이전트가 읽기 쉬운 Markdown · CSV · JSON으로 쓰고, 원본이 xlsx 등이면 원본 그대로 붙인다.
+- 화면이 쓰는 데이터(차트용 csv 등)는 문서 폴더에 둔다. 사람이나 다음 에이전트가 받을 파일만 붙인다.
+- 폴더는 작업 폴더에 zip으로 묶어 붙인다. 사용자가 가리킨 파일은 옮기지 않고 그 자리에서 붙이고, 이름을 바꿔야 하면 작업 폴더에 복사본을 만든다.
+- 본문(HTML · Markdown)에서 첨부 파일을 링크나 이미지로 가리키지 않는다. 문서 안에서는 받아지지 않고, 첨부 파일은 문서 화면에 그리는 파일이 아니다. 그림이 필요하면 문서 파일(HTML 폴더)로 넣는다. 받을 곳을 알려야 하면 본문에 「화면 위 [첨부 파일]에서 내려받아요」라고 쓴다.
+- 게시물의 첨부 파일(`--attach`)과 질문 · 보고의 첨부(`abox-ask` · `abox-report`, 아티팩트를 붙임)는 다르다. 섞지 않는다.
+
+### 붙이기
+
+```bash
+abox publish <작업 폴더>/report.md --title "9월 결제 실패 분석" --desc "실패 1,284건의 원인과 대응" \
+  --attach <작업 폴더>/결제실패-원본.xlsx --attach-desc "결제실패-원본.xlsx=9월 결제 실패 건별 원본, '실패' 시트가 건별 목록" \
+  --attach <작업 폴더>/분석-상세.md --attach-desc "분석-상세.md=원인 분류 기준과 건수를 계산한 과정. 같은 분석을 다시 할 때 읽어요" \
+  --json
+```
+
+- 첨부 파일 이름은 로컬 파일 이름이다. `--attach-desc "<이름>=<설명>"`은 첫 `=`에서 나누고, **새로 붙이는 파일마다 꼭 준다**(없으면 exit 2).
+- 설명은 「무엇이 들어 있고 언제 읽으면 되는지」를 50자 안팎 한 문장으로 쓴다(한 줄 200자까지). 「참고 자료」 같은 막연한 말은 쓰지 않는다. 받는 사람 화면에도 보이므로 사람이 읽어도 되는 말로 쓰고 비밀 · 개인정보를 넣지 않는다.
+- 템플릿 데이터 게시(`--template` · 데이터의 `--url`)에도 같은 옵션을 쓴다.
+- 한도는 10개, 파일 하나 10MB, 문서(템플릿 아티팩트는 데이터)와 합쳐 50MB다.
+
+### 수정 게시할 때
+
+- 문서만 고칠 때는 첨부 파일 옵션을 넘기지 않는다. 첨부 파일과 설명을 그대로 이어받는다.
+- 상세 내용이 바뀌었으면 그 파일을 같은 이름으로 다시 `--attach`한다(설명은 이어받는다). 내용의 뜻이 바뀌었으면 `--attach-desc`로 설명도 고친다.
+- 설명만 틀렸으면 `--attach-desc`만 넘긴다(파일은 올라가지 않는다).
+- 필요 없어진 파일은 `--detach <이름>`으로 뺀다(수정 게시만).
+- 이름은 대소문자를 무시해 맞춘다. 지금 붙은 이름은 `abox info <URL> --json`의 `data.attachedFiles[].name`이다.
+
+### 결과 보고
+
+- 결과의 `data.attachedFiles[]`로 붙은 첨부 파일의 이름과 설명을 알린다. 이번에 한 일은 `change`(`added` 더함 · `replaced` 바꿈 · `described` 설명 바꿈)와 `data.detachedFiles`(뺌)로 알린다.
+- 스스로 판단해 붙인 파일이 있으면 그렇다고 알려, 사용자가 빼 달라고 할 수 있게 한다.
+- 공개(`share`) 결과의 `warnings`에 `ATTACHED_FILES_SHARED`가 있으면 그 `message`(「첨부 파일 2개도 받는 사람이 내려받을 수 있어요」)를 그대로 전한다.
+
+### 이어받아 읽기
+
+사용자가 Artifact Box URL을 주며 그 문서를 이어 일하게 하면("이 문서 이어서 작업해", "이 분석을 10월 데이터로 다시 해 줘") 이 순서로 읽는다.
+
+1. `abox info <URL> --json`으로 문서 정보와 `data.attachedFiles[]`(이름 · 크기 · 설명)를 먼저 본다.
+2. 설명을 보아 이번 일에 필요한 첨부 파일만 받는다. 필요 없는 파일은 받지 않는다.
+   - 문서를 먼저 읽고 고를 때는 두 번에 나눈다: `abox pull <URL> --out <작업 폴더>/<문서 이름> --json`으로 문서를 받은 뒤, `abox pull <URL> --attached-files <작업 폴더>/<문서 이름>-files --only <이름> --json`으로 첨부 파일을 받는다. 두 번째에는 `--out`을 빼야 한다(같은 `--out`이면 이미 있는 자리라 거부된다).
+   - 처음부터 필요한 파일을 알면 `--out`과 `--attached-files … --only <이름>`을 한 번에 준다. `--only`는 여러 번 쓴다.
+3. 첨부 파일 폴더는 **문서 폴더 밖의 따로 된 폴더**로 정한다. 문서 폴더 안에 받으면 다시 게시할 때 문서 파일로 올라간다. 폴더는 있어도 되지만, 같은 이름의 파일이 이미 있으면 아무것도 받지 않는다(exit 2: 다른 폴더나 `--only`).
+4. 받은 파일(`data.attachedFiles[].path`)을 지우거나 고쳐도 게시물은 바뀌지 않는다. 바꾸려면 위 '수정 게시할 때'의 옵션으로 수정 게시한다.
 
 ## 템플릿으로 게시
 
@@ -239,7 +299,7 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 
 ### 고쳐서 다시 게시
 
-1. **반드시** `abox pull <URL> --out <작업 폴더>/<파일 이름>.json --json`으로 받는다(`--out`은 필수다). `data.data`가 그 버전의 데이터이고, `data.schema`·`data.guide`는 그 아티팩트가 고정된 템플릿 버전의 것이다. `abox template info`의 스키마로 쓰지 않는다. 템플릿이 그 뒤 바뀌었거나 같은 이름이 다른 템플릿에 다시 쓰였을 수 있다.
+1. **반드시** `abox pull <URL> --out <작업 폴더>/<파일 이름>.json --json`으로 받는다(데이터는 `--out`이 있어야 받는다). `data.data`가 그 버전의 데이터이고, `data.schema`·`data.guide`는 그 아티팩트가 고정된 템플릿 버전의 것이다. `abox template info`의 스키마로 쓰지 않는다. 템플릿이 그 뒤 바뀌었거나 같은 이름이 다른 템플릿에 다시 쓰였을 수 있다.
 2. 받은 파일(`data.path`)을 고친다. 파일 이름은 아무것이나 된다. 수정 게시는 게시 때의 이름(`data.sourceName`)을 그대로 쓴다. 그 이름의 파일이 이미 있으면 pull이 `INVALID_INPUT`으로 거절한다. 있는 파일을 지우거나 덮어쓰지 말고 `--out <작업 폴더>/weekly-report-2026-w41-2.json`처럼 새 이름으로 받는다.
 3. `abox publish <파일> --url <URL> --json`으로 수정 게시한다. 템플릿 버전은 그대로이고 데이터가 바뀌면 새 아티팩트 버전이 된다(`result`는 '수정 게시' 표와 같다).
 
@@ -293,7 +353,7 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 
 | 요청                     | 명령                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 링크로 공개 (기본 7일)   | `abox share <URL> [--expires 1d\|7d\|30d\|never] --json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 링크로 공개 (기본 7일)   | `abox share <URL> [--expires 1d\|7d\|30d\|never] --json` (첨부 파일이 있으면 경고 `ATTACHED_FILES_SHARED`의 `message`를 전한다)                                                                                                                                                                                                                                                                                                                                                                                                  |
 | 비공개로                 | `abox unshare <URL> --json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | 정보·열람 수             | `abox info <URL> --json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | 목록                     | `abox ls [--project <id>] [--dir D] [--repo R] [--type html\|md\|canvas\|slides\|question\|collection] [--public\|--private] [-q 검색어] [--tag T…] [--template 이름] [--workspace W] --json` (한 워크스페이스의 목록이 프로젝트별로 묶여 나온다. `--project`만 주면 그 프로젝트의 워크스페이스다. 태그를 여러 번 주면 모두 가진 것만, `--template`은 그 템플릿으로 만든 것만, `-q`는 제목·설명·태그 검색 — 아래 '검색 결과 읽기')                                                                                               |
@@ -325,30 +385,34 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 
 실패하면 stdout에 `{"ok":false,"error":{"code","message","hint"?,…}}`가 나온다. exit code로 판단하고, 사용자에게 전할 때는 `error.hint`가 있으면 함께 전한다.
 
-| exit | 뜻                                                                                                            | 할 일                                                                                                                                                                                                                                                                                                       |
-| ---- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2    | 사용법·필수 누락(`MISSING_REQUIRED`의 `missing`), 지원하지 않는 종류, `SECRET_FILE`, `NO_ENTRY`               | 입력을 고쳐 다시 실행                                                                                                                                                                                                                                                                                       |
-| 2    | `--project`에 id가 아닌 값(「프로젝트는 id로 지정해요」), `project add`에 같은 이름의 프로젝트가 있음         | `abox project ls --json`(`project add`와 같은 `--workspace`)에서 그 프로젝트의 `id`를 찾아 쓴다                                                                                                                                                                                                             |
-| 2    | 「이전 버전이 프로젝트를 이름으로 보냈어요」(`hint`: `abox update`)                                           | 업데이트를 직접 하지 않는다. 사용자에게 터미널에서 `abox update`를 실행해 달라고 안내하고 멈춘다                                                                                                                                                                                                            |
-| 2    | 같은 이름의 워크스페이스가 여럿(`error.candidates`)                                                           | 후보를 보여 주고 고르게 한 뒤 `--workspace <id>`로 다시 실행('워크스페이스')                                                                                                                                                                                                                                |
-| 2    | `DATA_INVALID`: 데이터가 템플릿 스키마와 맞지 않음                                                            | `issues`대로 데이터를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다('템플릿으로 게시')                                                                                                                                                                                                             |
-| 2    | `CANVAS_INVALID`: `canvas.json`이 규칙과 맞지 않음(올리기 전에 검사)                                          | `issues`대로 `canvas.json`·폴더를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다(`references/canvas.md`)                                                                                                                                                                                            |
-| 2    | `DECK_INVALID`: `deck.json`이 규칙과 맞지 않음(올리기 전에 검사)                                              | `issues`대로 `deck.json`·폴더를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다(`references/slides.md`)                                                                                                                                                                                              |
-| 2    | `COLLECTION_INVALID`: 모음에 넣거나 뺄 주소가 맞지 않아 아무것도 바꾸지 않음                                  | `error.issues[]`의 `path`(`/items/0` · `/add/1` · `/remove/0` = 준 순서의 몇째 주소)와 `message`대로 주소를 고쳐 다시 실행: 바깥 주소는 이 서버의 아티팩트 URL로 바꾸고, 해시(`#board=` · `#slide=` · `#q3`)는 빼고, 항목 주소는 원본 URL로 바꾸고, 모음은 넣지 않는다('모음'). 원본을 다시 게시하지 않는다 |
-| 2    | `COLLECTION_INVALID`의 `item-not-found`(`collection new`): 넣을 것이 서로 다른 워크스페이스에 있거나 없음     | 같은 워크스페이스의 아티팩트만 묶을 수 있다고 사용자에게 알리고 어느 것을 묶을지 묻는다. `--workspace`를 줬으면 넣을 아티팩트의 워크스페이스와 같은지 본다                                                                                                                                                  |
-| 2    | `COLLECTION_INVALID`의 `item-not-found`(`collection add`): 그 모음의 워크스페이스에 없는 아티팩트             | 그 아티팩트는 이 모음에 넣을 수 없다고 알린다. 다른 워크스페이스로 옮기거나 다시 게시하지 않는다                                                                                                                                                                                                            |
-| 2    | 「모음 항목 주소예요」: 바꾸는 명령 · 질문 명령에 `/a/<모음>/<번호>`를 줌                                     | 모음 전체면 `message`의 모음 URL로, 그 아티팩트면 원본 URL(`abox info <모음 URL> --json`)로 다시 실행                                                                                                                                                                                                       |
-| 2    | `TEMPLATE_INVALID`: 템플릿 등록 실패                                                                          | 템플릿 폴더 문제다. `abox-template` 스킬로 처리                                                                                                                                                                                                                                                             |
-| 3    | 로그인 필요(`AUTH_REQUIRED`): 로그인한 적 없음, 토큰 만료·끊김                                                | `abox login`을 실행하지 않고 '로그인이 필요할 때'의 문장을 안내한 뒤 멈춘다                                                                                                                                                                                                                                 |
-| 4    | 레포 연결의 프로젝트 id가 없음(「프로젝트가 없어요」)                                                         | 다른 곳에 대신 게시하지 않는다. 연결 줄의 프로젝트가 지워졌거나 이 계정이 그 워크스페이스 멤버가 아니라고 알리고 멈춘다('프로젝트')                                                                                                                                                                         |
-| 4    | URL·버전·템플릿·프로젝트·미리 만든 태그 없음                                                                  | URL을 확인하거나 `abox ls`로, 템플릿은 `abox template ls`, 프로젝트는 `abox project ls`, 태그는 `abox tag ls`로 찾기                                                                                                                                                                                        |
-| 4    | 워크스페이스 없음, 또는 기본 워크스페이스를 더 쓸 수 없음(`error.defaultWorkspace`: 내보내졌거나 팀이 지워짐) | 목록은 `abox workspace ls`. 기본값이 끊겼으면 기본값을 되돌리는 `abox workspace use 개인`을 안내하고(직접 실행하지 않는다), 이번 게시를 어디에 할지 묻는다. 사용자가 고르면 그 워크스페이스를 `--workspace`로 넘긴다                                                                                        |
-| 5    | 한도(파일 10MB·전체 50MB·2,000개·Markdown 2MB·`canvas.json`·`deck.json` 64KB·템플릿 데이터 1MB·모음 50개)     | 파일·데이터를 줄이거나 `--exclude`로 빼기(데이터 게시에는 `--exclude`를 쓸 수 없다). 모음이면 하나도 넣지 않았으니 무엇을 뺄지 사용자에게 묻는다                                                                                                                                                            |
-| 6    | 서버 연결 실패·서버 오류                                                                                      | 샌드박스가 네트워크를 막아서라면 네트워크가 열린 권한으로 승인을 요청해 다시 실행('기본 규칙'). 아니면 한 번 다시 실행(템플릿 새 게시는 먼저 게시됐는지 확인 — '템플릿으로 게시'). 또 실패하면 `error.message`·`error.hint`를 전하고 멈춘다. 서버를 직접 띄우거나 고치지 않는다                             |
-| 1    | `PROJECT_NOT_EMPTY`: 아티팩트가 있는 프로젝트라 지우지 않음(`artifactCount`)                                  | 아티팩트를 대신 옮기거나 지우지 않는다. `abox ls --project <id> --json`의 목록을 보여 주고 어떻게 할지 묻는다                                                                                                                                                                                               |
-| 1    | 기타                                                                                                          | `error.message`를 사용자에게 전달                                                                                                                                                                                                                                                                           |
+| exit | 뜻                                                                                                                                                     | 할 일                                                                                                                                                                                                                                                                                                       |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2    | 사용법·필수 누락(`MISSING_REQUIRED`의 `missing`), 지원하지 않는 종류, `SECRET_FILE`, `NO_ENTRY`                                                        | 입력을 고쳐 다시 실행                                                                                                                                                                                                                                                                                       |
+| 2    | `--project`에 id가 아닌 값(「프로젝트는 id로 지정해요」), `project add`에 같은 이름의 프로젝트가 있음                                                  | `abox project ls --json`(`project add`와 같은 `--workspace`)에서 그 프로젝트의 `id`를 찾아 쓴다                                                                                                                                                                                                             |
+| 2    | 「이전 버전이 프로젝트를 이름으로 보냈어요」(`hint`: `abox update`)                                                                                    | 업데이트를 직접 하지 않는다. 사용자에게 터미널에서 `abox update`를 실행해 달라고 안내하고 멈춘다                                                                                                                                                                                                            |
+| 2    | 같은 이름의 워크스페이스가 여럿(`error.candidates`)                                                                                                    | 후보를 보여 주고 고르게 한 뒤 `--workspace <id>`로 다시 실행('워크스페이스')                                                                                                                                                                                                                                |
+| 2    | `DATA_INVALID`: 데이터가 템플릿 스키마와 맞지 않음                                                                                                     | `issues`대로 데이터를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다('템플릿으로 게시')                                                                                                                                                                                                             |
+| 2    | `CANVAS_INVALID`: `canvas.json`이 규칙과 맞지 않음(올리기 전에 검사)                                                                                   | `issues`대로 `canvas.json`·폴더를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다(`references/canvas.md`)                                                                                                                                                                                            |
+| 2    | `DECK_INVALID`: `deck.json`이 규칙과 맞지 않음(올리기 전에 검사)                                                                                       | `issues`대로 `deck.json`·폴더를 고쳐 다시 실행. 같은 오류가 3번 반복되면 멈추고 알린다(`references/slides.md`)                                                                                                                                                                                              |
+| 2    | `COLLECTION_INVALID`: 모음에 넣거나 뺄 주소가 맞지 않아 아무것도 바꾸지 않음                                                                           | `error.issues[]`의 `path`(`/items/0` · `/add/1` · `/remove/0` = 준 순서의 몇째 주소)와 `message`대로 주소를 고쳐 다시 실행: 바깥 주소는 이 서버의 아티팩트 URL로 바꾸고, 해시(`#board=` · `#slide=` · `#q3`)는 빼고, 항목 주소는 원본 URL로 바꾸고, 모음은 넣지 않는다('모음'). 원본을 다시 게시하지 않는다 |
+| 2    | `COLLECTION_INVALID`의 `item-not-found`(`collection new`): 넣을 것이 서로 다른 워크스페이스에 있거나 없음                                              | 같은 워크스페이스의 아티팩트만 묶을 수 있다고 사용자에게 알리고 어느 것을 묶을지 묻는다. `--workspace`를 줬으면 넣을 아티팩트의 워크스페이스와 같은지 본다                                                                                                                                                  |
+| 2    | `COLLECTION_INVALID`의 `item-not-found`(`collection add`): 그 모음의 워크스페이스에 없는 아티팩트                                                      | 그 아티팩트는 이 모음에 넣을 수 없다고 알린다. 다른 워크스페이스로 옮기거나 다시 게시하지 않는다                                                                                                                                                                                                            |
+| 2    | 「모음 항목 주소예요」: 바꾸는 명령 · 질문 명령에 `/a/<모음>/<번호>`를 줌                                                                              | 모음 전체면 `message`의 모음 URL로, 그 아티팩트면 원본 URL(`abox info <모음 URL> --json`)로 다시 실행                                                                                                                                                                                                       |
+| 2    | 「첨부 파일마다 설명을 붙여요: <이름>」: 새로 붙이는 파일에 `--attach-desc`가 없음                                                                     | 그 파일의 설명을 '첨부 파일'의 '붙이기'대로 써서 `--attach-desc`를 더해 다시 실행                                                                                                                                                                                                                           |
+| 2    | 「이 아티팩트에 없는 첨부 파일이에요」: `--detach` · `--attach-desc` · `--only`의 이름이 없음(`error.files`)                                           | `message`의 지금 이름 목록(`abox info <URL> --json`의 `data.attachedFiles[].name`)에서 맞는 이름으로 다시 실행. 맞는 것이 없으면 사용자에게 묻는다                                                                                                                                                          |
+| 2    | 「첨부 파일 폴더는 문서 폴더 밖에 둬요」 · 「첨부 파일 폴더에 같은 이름의 파일이 있어요」(`pull --attached-files`)                                     | 문서 폴더 밖의 다른 폴더로, 또는 `--only`로 받을 것만 골라 다시 받는다. 있던 파일은 지우지 않는다                                                                                                                                                                                                           |
+| 2    | `TEMPLATE_INVALID`: 템플릿 등록 실패                                                                                                                   | 템플릿 폴더 문제다. `abox-template` 스킬로 처리                                                                                                                                                                                                                                                             |
+| 3    | 로그인 필요(`AUTH_REQUIRED`): 로그인한 적 없음, 토큰 만료·끊김                                                                                         | `abox login`을 실행하지 않고 '로그인이 필요할 때'의 문장을 안내한 뒤 멈춘다                                                                                                                                                                                                                                 |
+| 4    | 레포 연결의 프로젝트 id가 없음(「프로젝트가 없어요」)                                                                                                  | 다른 곳에 대신 게시하지 않는다. 연결 줄의 프로젝트가 지워졌거나 이 계정이 그 워크스페이스 멤버가 아니라고 알리고 멈춘다('프로젝트')                                                                                                                                                                         |
+| 4    | URL·버전·템플릿·프로젝트·미리 만든 태그 없음                                                                                                           | URL을 확인하거나 `abox ls`로, 템플릿은 `abox template ls`, 프로젝트는 `abox project ls`, 태그는 `abox tag ls`로 찾기                                                                                                                                                                                        |
+| 4    | 워크스페이스 없음, 또는 기본 워크스페이스를 더 쓸 수 없음(`error.defaultWorkspace`: 내보내졌거나 팀이 지워짐)                                          | 목록은 `abox workspace ls`. 기본값이 끊겼으면 기본값을 되돌리는 `abox workspace use 개인`을 안내하고(직접 실행하지 않는다), 이번 게시를 어디에 할지 묻는다. 사용자가 고르면 그 워크스페이스를 `--workspace`로 넘긴다                                                                                        |
+| 5    | 한도(파일 10MB·전체 50MB·2,000개·Markdown 2MB·`canvas.json`·`deck.json` 64KB·템플릿 데이터 1MB·모음 50개·첨부 파일 10개, 첨부 파일은 문서와 합쳐 50MB) | 파일·데이터를 줄이거나 `--exclude`로 빼기(데이터 게시에는 `--exclude`를 쓸 수 없다). 모음이면 하나도 넣지 않았으니 무엇을 뺄지 사용자에게 묻는다. 첨부 파일이면 붙이는 것을 줄이거나, 수정 게시면 필요 없는 첨부 파일을 `--detach`로 뺄지 사용자에게 묻는다                                                 |
+| 6    | 서버 연결 실패·서버 오류                                                                                                                               | 샌드박스가 네트워크를 막아서라면 네트워크가 열린 권한으로 승인을 요청해 다시 실행('기본 규칙'). 아니면 한 번 다시 실행(템플릿 새 게시는 먼저 게시됐는지 확인 — '템플릿으로 게시'). 또 실패하면 `error.message`·`error.hint`를 전하고 멈춘다. 서버를 직접 띄우거나 고치지 않는다                             |
+| 1    | `PROJECT_NOT_EMPTY`: 아티팩트가 있는 프로젝트라 지우지 않음(`artifactCount`)                                                                           | 아티팩트를 대신 옮기거나 지우지 않는다. `abox ls --project <id> --json`의 목록을 보여 주고 어떻게 할지 묻는다                                                                                                                                                                                               |
+| 1    | `ATTACHED_FILES_UNSUPPORTED`: 서버가 아직 첨부 파일을 지원하지 않음                                                                                    | 파일 게시는 게시되지 않았다. 첨부 파일 없이 게시할지 사용자에게 묻는다. 데이터 게시는 이미 첨부 파일 없이 게시됐으니(`error.url`) 같은 명령을 다시 실행하지 말고 그 URL과 함께 알린다. `pull --attached-files`면 서버가 첨부 파일을 줄 수 없으니, `--attached-files` 없이 문서만 받고 그렇게 알린다         |
+| 1    | 기타                                                                                                                                                   | `error.message`를 사용자에게 전달                                                                                                                                                                                                                                                                           |
 
-`SECRET_FILE`(`.env*`·`.dev.vars*`·`credentials.json`·`.npmrc`·`.netrc`·`id_rsa*` 등 SSH 키·`*.pem`·`*.key`·`*.p12`·`*.pfx`)이면 `error.files`를 사용자에게 보여 주고, 그 파일이 게시물에 필요 없는지 확인한 뒤에만 `--exclude '<패턴>'`을 붙여 다시 게시한다. `.git/`·`node_modules/`·`.wrangler/`는 자동으로 빠진다.
+`SECRET_FILE`(`.env*`·`.dev.vars*`·`credentials.json`·`.npmrc`·`.netrc`·`id_rsa*` 등 SSH 키·`*.pem`·`*.key`·`*.p12`·`*.pfx`)이면 `error.files`를 사용자에게 보여 주고, 그 파일이 게시물에 필요 없는지 확인한 뒤에만 `--exclude '<패턴>'`을 붙여 다시 게시한다. `--attach`로 붙인 파일이 비밀 파일이면 그 `--attach`를 빼고 다시 게시한다. 사용자가 붙이라고 한 파일이면 조용히 빼지 말고, 비밀 파일이라 붙일 수 없다고 사용자에게 알린 뒤 빼고 게시한다. 스스로 고른 파일이면 빼고 게시한 뒤 결과 보고에 뺐다고 적는다. `.git/`·`node_modules/`·`.wrangler/`는 자동으로 빠진다.
 
 ## 참고
 

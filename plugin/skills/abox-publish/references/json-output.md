@@ -57,6 +57,36 @@
 
 `workspace:{id,kind,name}`도 모든 결과에 있고, 아티팩트가 있는 워크스페이스다. `kind`가 `team`이면 비공개여도 그 팀 멤버 모두가 볼 수 있다. 새 게시는 `--project`의 워크스페이스(`--workspace`도 주면 둘이 같아야 한다), `--workspace`, 기본 워크스페이스 순으로 정한 곳에, 수정 게시는 아티팩트가 있던 워크스페이스에 그대로 들어간다.
 
+`attachedFiles` · `detachedFiles`도 모든 결과에 있다(`unchanged` · `metadata_updated`, 빈 배열 포함):
+
+```json
+"attachedFiles": [
+  { "name": "결제실패-원본.xlsx", "size": 8493211, "description": "9월 결제 실패 건별 원본, '실패' 시트가 건별 목록" },
+  { "name": "분석-상세.md", "size": 12034, "description": "원인 분류 기준과 건수를 계산한 과정", "change": "added" }
+],
+"detachedFiles": ["견적서.pdf"]
+```
+
+- `attachedFiles`는 이 게시 뒤의 첨부 파일 전체(이름순)다. `description`은 있을 때만 있다.
+- `change`는 이번 게시가 한 일이다: `added`(더함) · `replaced`(파일을 바꿈, 대소문자만 다른 이름도) · `described`(설명만 바꿈). 이어받은 파일에는 없다.
+- `detachedFiles`는 이번에 뺀 이름이다.
+- 두 칸이 없는 응답은 첨부 파일을 모르는 서버다. CLI가 그 경우를 `ATTACHED_FILES_UNSUPPORTED`로 알린다(아래 표).
+
+첨부 파일(`--attach` · `--attach-desc` · `--detach`)의 실패:
+
+| 경우                                                                 | exit | `error`                                                                                                                                                     |
+| -------------------------------------------------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 새로 붙이는 파일에 `--attach-desc`가 없음(요청 전)                   | 2    | `INVALID_INPUT` 「첨부 파일마다 설명을 붙여요: <이름>」(`files`, `hint`)                                                                                    |
+| `--detach` · `--attach-desc`의 이름이 그 아티팩트에 없음             | 2    | `INVALID_INPUT` 「이 아티팩트에 없는 첨부 파일이에요: <이름> (지금: <이름> · <이름>)」(`files`)                                                             |
+| 새 게시에서 `--attach`로 붙이지 않은 이름의 `--attach-desc`          | 2    | `INVALID_INPUT` 「--attach로 붙이지 않은 파일의 설명이에요: <이름>」                                                                                        |
+| `--attach-desc`가 `<이름>=<설명>` 모양이 아님                        | 2    | `INVALID_INPUT` 「--attach-desc는 "<이름>=<설명>" 모양으로 써요」                                                                                           |
+| 새 게시의 `--detach`                                                 | 2    | `INVALID_INPUT` 「--detach는 수정 게시(--url)에서만 써요」                                                                                                  |
+| `--attach-desc` · `--detach`의 이름에 경로(`/` · `\`)를 씀           | 2    | `INVALID_INPUT` 「첨부 파일 이름에는 / · \ · 제어 문자를 쓸 수 없어요」(`files`, `hint`: 「--attach-desc에는 경로가 아니라 파일 이름을 써요: <파일 이름>」) |
+| `--attach`가 폴더                                                    | 2    | `INVALID_INPUT` 「폴더는 첨부 파일로 붙일 수 없어요」(`hint`: zip으로 묶어 붙여요)                                                                          |
+| `--attach`가 비밀 파일                                               | 2    | `SECRET_FILE`(`files`)                                                                                                                                      |
+| 10개 넘음(이어받은 것 포함) · 파일 하나 10MB · 문서와 합쳐 50MB 넘음 | 5    | `LIMIT_EXCEEDED`                                                                                                                                            |
+| 서버가 첨부 파일을 모름                                              | 1    | `ATTACHED_FILES_UNSUPPORTED` 「서버가 아직 첨부 파일을 지원하지 않아요」(`hint`). 파일 게시는 아무것도 게시되지 않음                                        |
+
 필수 정보 누락(exit 2):
 
 ```json
@@ -165,7 +195,9 @@
 - `project` · `workspace`는 파일 게시와 같다(이 게시 뒤 아티팩트의 프로젝트 · 워크스페이스). 새 게시의 템플릿은 그 워크스페이스에서 찾는다.
 - `result`(라이브의 `updated` 포함)와 `previousVersion`(`new_version`일 때)은 파일 게시와 같다. `unchanged`·`metadata_updated`에도 `type`·`visibility`·`template`이 있고, `missing`·`activeShare`는 없다.
 - `template`은 이 아티팩트가 고정된 템플릿 버전이다(`version`).
+- `attachedFiles` · `detachedFiles`는 파일 게시와 같다(데이터 게시도 `--attach` · `--attach-desc` · `--detach`를 받는다).
 - 경고: `DUPLICATE_LOCATION`(새 게시)·`PUBLIC_UPDATE`(수정 게시).
+- 서버가 첨부 파일을 모르면 데이터는 **이미 첨부 파일 없이 게시된 뒤**라 `ATTACHED_FILES_UNSUPPORTED`(exit 1)에 `url` · `artifactId` · `version` · `result`가 있다. 같은 명령을 다시 실행하면 아티팩트가 하나 더 생기니 다시 실행하지 않는다.
 
 검증 실패(exit 2):
 
@@ -230,6 +262,7 @@
 - `version`은 받은 버전(`--version N`, 기본 현재)이다.
 - 받은 파일이 목록과 다르면(받는 동안 라이브 아티팩트가 바뀜) `UNEXPECTED_RESPONSE`이고 아무것도 쓰지 않는다. 다시 받는다.
 - 받는 동안 `--out` 자리에 무엇이 생기면 `INVALID_INPUT`이고 아무것도 쓰지 않는다.
+- 첨부 파일이 있는 아티팩트면 `attachedFiles`가 있다(아래 '첨부 파일 받기').
 
 템플릿으로 만든 아티팩트는 데이터를 파일로 받는다:
 
@@ -250,9 +283,39 @@
 
 - `path`는 쓴 파일의 절대 경로다. `sourceName`은 게시 때의 데이터 파일 이름이고, 수정 게시해도 이 이름이 유지된다.
 - `version`은 받은 아티팩트 버전(`--version N`, 기본 현재)이다. `schema`·`guide`(없으면 `null`)는 고정된 템플릿 버전의 것이다.
-  오류(파일·데이터 모두):
 
-- `--out` 없음 → 요청 전에 `MISSING_REQUIRED`(`missing: ["out"]`). 아무것도 쓰지 않는다.
+첨부 파일 받기 — `abox pull <URL> [--out <경로>] --attached-files <폴더> [--only <이름>…]`(파일 · 데이터 모두). `--attached-files` 없이 받으면 첨부 파일은 받지 않고 목록만 온다:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "version": 3,
+    "attachedFiles": [
+      {
+        "name": "분석-상세.md",
+        "size": 12034,
+        "description": "원인 분류 기준과 건수를 계산한 과정",
+        "path": "/tmp/artifact-box/report-files/분석-상세.md"
+      },
+      { "name": "결제실패-원본.xlsx", "size": 8493211, "description": "9월 결제 실패 건별 원본" }
+    ]
+  }
+}
+```
+
+- `attachedFiles`는 그 버전의 첨부 파일 전체이고, `path`는 이번에 받은 파일에만 있다(`--only`로 고른 것).
+- `--out`도 주면 위의 문서 칸(`path` · `publishPath` · `files` …, 데이터는 `data` · `schema` …)이 함께 있다. `--out`이 없으면 `version`과 `attachedFiles`만 있다.
+- 받은 파일은 목록의 크기 · sha256과 맞는지 확인한 뒤에만 쓴다.
+
+오류(파일·데이터 모두):
+
+- `--out`과 `--attached-files`가 둘 다 없음 → 요청 전에 `MISSING_REQUIRED`(`missing: ["out"]`). 아무것도 쓰지 않는다.
+- `--only`만 줌(`--attached-files` 없음) → 요청 전에 `INVALID_INPUT`.
+- `--only`의 이름이 없음 → `INVALID_INPUT`(`files`, `message`에 지금 이름 목록).
+- `--attached-files`가 `--out` 문서 폴더 안 → `INVALID_INPUT` 「첨부 파일 폴더는 문서 폴더 밖에 둬요」.
+- `--attached-files` 폴더에 받을 이름의 파일이 이미 있음 → `INVALID_INPUT`(`files`). 아무것도 쓰지 않는다.
+- 서버가 첨부 파일을 모름 → `ATTACHED_FILES_UNSUPPORTED`(exit 1). 아무것도 쓰지 않는다. `--attached-files` 없이 문서만 받는다.
 - `--out` 자리에 파일이나 폴더가 이미 있음(빈 폴더도) → 요청 전에 `INVALID_INPUT`(`hint`: `--out`). 덮어쓰지 않는다.
 - 없는 버전 → `NOT_FOUND`(exit 4)
 
@@ -267,6 +330,8 @@
 ```
 
 `expiresAt: null`은 만료 없음.
+
+첨부 파일이 있는 아티팩트를 공개하면 CLI가 경고 `ATTACHED_FILES_SHARED`(`count` · `message`)를 더한다: `{"code":"ATTACHED_FILES_SHARED","count":2,"message":"첨부 파일 2개도 받는 사람이 내려받을 수 있어요"}`. 모음을 공개하면 `count` 없이 「들어 있는 문서에 첨부 파일이 있으면 받는 사람도 내려받을 수 있어요」다.
 
 ## info
 
@@ -283,6 +348,8 @@
 `live` — `true`면 라이브 아티팩트다. 버전은 v1 하나뿐이고 게시할 때마다 그 내용이 바뀐다(`updatedAt`이 마지막 갱신). 되돌리기는 없다.
 
 `visibility:{mode,expiresAt,everShared}` — 만료는 읽을 때 판정한다. `expiresAt`이 지금보다 과거면 `mode`가 `link`로 남아 있어도 만료(받는 사람에게는 비공개와 같음)다.
+
+`attachedFiles:[{name,size,sha256,description?}]` — 지금 버전의 첨부 파일(이름순). 파일이 있는 종류면 늘 있다(없으면 빈 배열). 버전마다 `versions[].attachedFileCount` · `attachedFileBytes`(첨부 파일이 있는 버전만)가 있고, `fileCount` · `totalBytes`는 문서 파일만 센다.
 
 `template` — 템플릿으로 만든 아티팩트면 `{name,title,version}`(`version`은 고정된 템플릿 버전), 아니면 `null`. 템플릿으로 만든 아티팩트는 `type`이 `html`이고, `sourceName`은 게시한 데이터 파일 이름이며, 버전의 `fileCount`·`totalBytes`는 데이터 기준(1개·데이터 바이트)이다.
 
@@ -449,7 +516,7 @@
 
 ## rollback · rm · open · dashboard
 
-- rollback: `data:{version(새 번호),restoredFrom}` + 공개 중이면 `PUBLIC_UPDATE`. 라이브 아티팩트는 `INVALID_INPUT`(exit 2, `hint`)
+- rollback: `data:{version(새 번호),restoredFrom,attachedFiles}` + 공개 중이면 `PUBLIC_UPDATE`. `attachedFiles`(`{name,size,sha256,description?}`)는 새 버전의 첨부 파일, 곧 되돌린 버전의 것이다. 라이브 아티팩트는 `INVALID_INPUT`(exit 2, `hint`)
 - rm: `data:{deleted:true}`
 - open · dashboard: `data:{opened,url}` (`opened: false`면 브라우저를 열지 못함). 모음 항목 주소를 주면 모음 안의 그 아티팩트를 연다
 
@@ -541,5 +608,6 @@
 | `ROOT_RELATIVE_PATHS`           | HTML에 `/`로 시작하는 경로가 있음(`files`)                                                         |
 | `CANVAS_MANIFEST_IGNORED`       | (CLI) `index.html`이 있는 폴더라 HTML로 게시했고, 캔버스 매니페스트 같은 `canvas.json`은 읽지 않음 |
 | `DECK_MANIFEST_IGNORED`         | (CLI) `index.html`이 있는 폴더라 HTML로 게시했고, 덱 매니페스트 같은 `deck.json`은 읽지 않음       |
+| `ATTACHED_FILES_SHARED`         | (CLI · `share`) 첨부 파일 `count`개도 받는 사람이 내려받음(모음은 `count` 없음)                    |
 | `TEAM_DEFAULT_WORKSPACE`        | (`workspace use`) 기본이 팀이 되어 `--workspace` 없는 게시를 팀 멤버 모두가 봄                     |
 | `DEFAULT_WORKSPACE_UNAVAILABLE` | (`workspace ls` · `whoami`) 저장된 기본 워크스페이스를 더 쓸 수 없음                               |
