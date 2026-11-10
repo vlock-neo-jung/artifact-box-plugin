@@ -30,6 +30,7 @@ Artifact Box는 HTML·Markdown 파일과 캔버스(화면 여러 장을 한 URL�
 ### 형식 고르기
 
 1. 사용자가 형식을 말하면 그대로 따른다. "문서"·"문서 아티팩트"·"마크다운"·"md"는 Markdown이고, "HTML"·"웹페이지"·"대시보드"는 HTML이고, "캔버스"는 캔버스이고, "슬라이드"·"발표 자료"·"덱"·"프레젠테이션"·"PT"·"피치덱"은 슬라이드다.
+   - 사용자가 "이 문서 대시보드에 넣어 줘"처럼 웹의 대시보드(아티팩트 여럿을 칸에 모아 띄워 두는 화면)를 가리키면, 대시보드에 넣는 일은 CLI로 할 수 없으니 "대시보드는 웹에서 만들고 고쳐요"라고 알린다. 게시도 함께 요청했으면 게시는 하고 그 URL과 함께 알린다.
    - PPTX 파일을 달라고 하면 Artifact Box 슬라이드는 PPTX로 내보내지 않고 화면의 [인쇄]로 PDF만 저장된다고 알리고, 슬라이드로 게시할지 묻는다.
 2. 말하지 않으면 내용으로 고른다.
    - 장 단위로 넘기며 발표·설명할 자료면 슬라이드다(회의 발표, 고객 앞 제안 발표, 교육 발표). 읽고 검토하는 제안서·보고서는 아래 규칙대로다(대개 Markdown).
@@ -134,7 +135,7 @@ git remote get-url origin 2>/dev/null | sed -E 's#^(git@[^:]+:|[a-z+]+://([^@/]+
 
 ```bash
 abox publish <작업 폴더>/latency-dashboard.html \
-  --title "API 지연시간 대시보드" --desc "서비스별 p50·p95·p99 지연시간 7일 추이" \
+  --title "API 지연시간 지표" --desc "서비스별 p50·p95·p99 지연시간 7일 추이" \
   --project Pq4wT8nV2mK6rX9bL3cH7j --dir workspace-artifact --repo hodoolabs/artifact-box \
   --tag 운영현황 --json
 ```
@@ -369,7 +370,7 @@ abox publish <작업 폴더>/weekly-report-2026-w41.json --template weekly-repor
 
 - `visibility.expiresAt`이 지금보다 과거면 공개 기간이 끝난 것이다. `mode`가 `link`여도 받는 사람은 열 수 없으니 "만료되어 비공개 상태"라고 알리고, 다시 공개하려면 `share`가 필요하다.
 - `URL_HOLDERS_CAN_VIEW` 경고는 "이 URL을 이미 아는 사람도 열 수 있다"는 뜻이다. 그대로 알린다. `reshare: true`면 예전에 URL을 받은 사람도 다시 열 수 있다고 덧붙인다.
-- `abox open <URL>`(오너 미리보기)·`abox dashboard`는 이 컴퓨터의 브라우저를 여는 명령이다. 사용자가 브라우저로 보고 싶다고 할 때만 쓴다.
+- `abox open <URL>`(오너 미리보기)·`abox web`은 이 컴퓨터의 브라우저를 여는 명령이다. 사용자가 브라우저로 보고 싶다고 할 때만 쓴다.
 - `ls` 결과에 `nextCursor`가 있으면 목록이 잘린 것이다. 다음 페이지 옵션은 없으니 `--project`·`--dir`·`--type`·`-q` 등으로 범위를 좁혀 다시 조회한다.
 
 ### 검색 결과 읽기

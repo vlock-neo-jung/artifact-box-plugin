@@ -516,11 +516,11 @@
 
 `issues[].code`: `not-artifact-url`(이 서버 주소가 아님) · `item-not-found`(없음 · 다른 워크스페이스) · `item-trashed`(휴지통에 있음) · `collection-in-collection` · `item-hash`(`#board=` · `#slide=` · `#q3`가 붙음) · `collection-item-url`(넣을 주소가 항목 주소) · `other-collection-item`(뺄 주소가 다른 모음의 항목 주소). 넣으면 50개를 넘으면 `LIMIT_EXCEEDED`(exit 5)이고 하나도 넣지 않는다.
 
-## rollback · rm · open · dashboard
+## rollback · rm · open · web
 
 - rollback: `data:{version(새 번호),restoredFrom,attachedFiles}` + 공개 중이면 `PUBLIC_UPDATE`. `attachedFiles`(`{name,size,sha256,description?}`)는 새 버전의 첨부 파일, 곧 되돌린 버전의 것이다. 라이브 아티팩트는 `INVALID_INPUT`(exit 2, `hint`)
 - rm: `data:{trashedAt,moved,url}` — 휴지통으로 옮긴 시각(이미 있었으면 그때 시각), 이번에 옮겼는지(`false`면 이미 휴지통에 있었다), 아티팩트 URL. 완전히 지우지 않는다
-- open · dashboard: `data:{opened,url}` (`opened: false`면 브라우저를 열지 못함). 모음 항목 주소를 주면 모음 안의 그 아티팩트를 연다
+- open · web: `data:{opened,url}` (`opened: false`면 브라우저를 열지 못함). 모음 항목 주소를 주면 모음 안의 그 아티팩트를 연다
 
 ## 서버 연결 실패 (exit 6)
 
