@@ -351,13 +351,15 @@
 
 `attachedFiles:[{name,size,sha256,description?}]` — 지금 버전의 첨부 파일(이름순). 파일이 있는 종류면 늘 있다(없으면 빈 배열). 버전마다 `versions[].attachedFileCount` · `attachedFileBytes`(첨부 파일이 있는 버전만)가 있고, `fileCount` · `totalBytes`는 문서 파일만 센다.
 
+`trashedAt` — 휴지통으로 옮긴 시각, 휴지통 밖이면 `null`. 휴지통에 있는 동안 받는 사람에게 링크가 닫히고 `visibility`는 되살리면 돌아갈 설정이다. 읽기(`info` · `pull` · `read`)는 되고, 바꾸는 명령은 `ARTIFACT_TRASHED`(exit 1)다.
+
 `template` — 템플릿으로 만든 아티팩트면 `{name,title,version}`(`version`은 고정된 템플릿 버전), 아니면 `null`. 템플릿으로 만든 아티팩트는 `type`이 `html`이고, `sourceName`은 게시한 데이터 파일 이름이며, 버전의 `fileCount`·`totalBytes`는 데이터 기준(1개·데이터 바이트)이다.
 
 ## ls
 
-`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace·includedIn 없음, 모음은 items 대신 collection:{itemCount})]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음) · `search?`(`-q`로 찾았을 때만)
+`data`: `workspace:{id,kind,name}`(조회한 워크스페이스) · `items:[info와 같은 요약(versions·entryPath·sourceName·workspace·includedIn 없음, 모음은 items 대신 collection:{itemCount})]` · `projects:[{id,name,description,count,updatedAt,matched?}]` · `dirs:[{dir,count,repo?}]` · `tags:[{tag,count,preset}]` · `nextCursor?`(있으면 목록이 잘림 — CLI에 다음 페이지 옵션은 없음) · `search?`(`-q`로 찾았을 때만) · `trashCount`(워크스페이스의 휴지통에 있는 수, 필터와 상관없음)
 
-- `projects`는 그 워크스페이스의 프로젝트(빈 것 포함, 최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다(`--repo`면 그 저장소의 아티팩트가 있는 것만). `count`도 그 프로젝트의 전체 개수다.
+- `projects`는 그 워크스페이스의 프로젝트(빈 것 포함, 최근 바뀐 순)로, `--repo` 말고 다른 필터와 상관없이 전체다(`--repo`면 그 저장소의 아티팩트가 있는 것만). `count`도 그 프로젝트의 전체 개수다(휴지통 제외).
 - `--tag`를 주면 프로젝트마다 `matched`(그 태그를 모두 가진 수, 0일 수 있음)가 붙는다. `--repo`와 `--tag`만 따른다.
 - `dirs`(디렉토리가 있는 아티팩트만 센다)와 `tags`는 `--repo`와 `--project`를 따른다(그 프로젝트 안의 것). 다른 필터와는 상관없다.
 - `tags`는 미리 만든 태그(`preset: true`, 등록 순서)가 먼저, 나머지는 많이 쓴 순이다.
@@ -365,7 +367,7 @@
 
 `--template <이름>`이면 그 템플릿으로 만든 것만 나온다. 없는 템플릿 이름이면 `items`가 비어 있다(오류 아님).
 
-`-q`(단어가 남는 검색어)면 `items`는 정확히 맞는 문서만이고(관련도 순, 200개까지, `nextCursor` 없음) `search`가 붙는다. 읽는 법은 SKILL.md의 '검색 결과 읽기'다.
+`-q`(단어가 남는 검색어)면 `items`는 정확히 맞는 문서만이고(관련도 순, 200개까지, `nextCursor` 없음) `search`가 붙는다. `-q` 없는 목록에는 휴지통의 것이 나오지 않고, 검색은 휴지통의 것(`trashedAt`이 있음)도 묶음마다 맨 아래에 준다. 읽는 법은 SKILL.md의 '검색 결과 읽기'다.
 
 ```json
 "search": {
@@ -411,7 +413,7 @@
 - `project info <id>` — `data`: `project ls`의 항목에 `workspace:{id,kind,name}`(프로젝트가 있는 워크스페이스)를 더한 것. 없거나 볼 수 없는 id면 `NOT_FOUND`(exit 4, `hint`).
 - `project add <이름> [--desc S]` — `data`: 만든 프로젝트 `{id,name,description,count,updatedAt}`(`count`는 0). 레포 연결 줄은 `Artifact Box 프로젝트: <name> (id: <id>)`다. 그 워크스페이스에 같은 이름(대소문자·띄어쓰기 무시)이 있으면 `INVALID_INPUT`(exit 2, `hint`).
 - `project edit <id> [--name N] [--desc S]` — `data`: 바뀐 뒤의 `{id,name,description,count,updatedAt}`. `--desc ""`는 설명을 지운다. 둘 다 없으면 요청 전에 exit 2. 다른 프로젝트와 같은 이름이면 `INVALID_INPUT`(exit 2), 없는 id면 `NOT_FOUND`(exit 4).
-- `project rm <id>` — `data:{deleted:true}`. 아티팩트가 있으면 지우지 않는다:
+- `project rm <id>` — `data:{deleted:true}`. 아티팩트가 있으면 휴지통에 있는 것까지 세어 지우지 않는다(그중 휴지통에 있는 수는 `trashedCount`, 있을 때만):
 
 ```json
 {
@@ -512,12 +514,12 @@
 }
 ```
 
-`issues[].code`: `not-artifact-url`(이 서버 주소가 아님) · `item-not-found`(없음 · 다른 워크스페이스) · `collection-in-collection` · `item-hash`(`#board=` · `#slide=` · `#q3`가 붙음) · `collection-item-url`(넣을 주소가 항목 주소) · `other-collection-item`(뺄 주소가 다른 모음의 항목 주소). 넣으면 50개를 넘으면 `LIMIT_EXCEEDED`(exit 5)이고 하나도 넣지 않는다.
+`issues[].code`: `not-artifact-url`(이 서버 주소가 아님) · `item-not-found`(없음 · 다른 워크스페이스) · `item-trashed`(휴지통에 있음) · `collection-in-collection` · `item-hash`(`#board=` · `#slide=` · `#q3`가 붙음) · `collection-item-url`(넣을 주소가 항목 주소) · `other-collection-item`(뺄 주소가 다른 모음의 항목 주소). 넣으면 50개를 넘으면 `LIMIT_EXCEEDED`(exit 5)이고 하나도 넣지 않는다.
 
 ## rollback · rm · open · dashboard
 
 - rollback: `data:{version(새 번호),restoredFrom,attachedFiles}` + 공개 중이면 `PUBLIC_UPDATE`. `attachedFiles`(`{name,size,sha256,description?}`)는 새 버전의 첨부 파일, 곧 되돌린 버전의 것이다. 라이브 아티팩트는 `INVALID_INPUT`(exit 2, `hint`)
-- rm: `data:{deleted:true}`
+- rm: `data:{trashedAt,moved,url}` — 휴지통으로 옮긴 시각(이미 있었으면 그때 시각), 이번에 옮겼는지(`false`면 이미 휴지통에 있었다), 아티팩트 URL. 완전히 지우지 않는다
 - open · dashboard: `data:{opened,url}` (`opened: false`면 브라우저를 열지 못함). 모음 항목 주소를 주면 모음 안의 그 아티팩트를 연다
 
 ## 서버 연결 실패 (exit 6)

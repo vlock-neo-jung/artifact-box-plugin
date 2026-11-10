@@ -106,7 +106,7 @@ description: Creates and updates templates on Artifact Box (artifactbox.app) wit
 
 삭제하면 템플릿과 모든 버전이 바로 지워지고 되돌릴 수 없다. 같은 이름으로 새 템플릿을 등록할 수 있지만 별개 템플릿이다.
 
-이 템플릿으로 만든 아티팩트가 있으면 지워지지 않는다(`TEMPLATE_IN_USE`). 그 아티팩트를 대신 지우지 않는다. `abox ls --template <이름> [--workspace W] --json`으로 찾은 목록과 개수를 보여 주고, 먼저 지울지 사용자에게 묻는다.
+이 템플릿으로 만든 아티팩트가 휴지통에라도 있으면 지워지지 않는다(`TEMPLATE_IN_USE`). 그 아티팩트를 대신 지우지 않는다. `abox ls --template <이름> [--workspace W] --json`으로 찾은 목록과 개수를 보여 주고, 먼저 지울지 사용자에게 묻는다. 휴지통의 것(`trashedCount`)은 목록에 없고, 사용자가 웹 휴지통에서 완전 삭제해야 한다. `abox rm`은 휴지통으로 옮길 뿐이라 그것만으로는 템플릿을 지울 수 없다.
 
 ## 실패 처리
 

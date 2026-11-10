@@ -118,7 +118,7 @@
 ## template rm
 
 - `--yes`와 함께: `{"ok":true,"data":{"deleted":true}}`. 템플릿과 모든 버전이 지워진다.
-- 이 템플릿으로 만든 아티팩트가 있으면 아무것도 지우지 않고 `TEMPLATE_IN_USE`(exit 1)다. `artifactCount`는 그 아티팩트 수다.
+- 이 템플릿으로 만든 아티팩트가 있으면 아무것도 지우지 않고 `TEMPLATE_IN_USE`(exit 1)다. `artifactCount`는 휴지통에 있는 것까지 센 그 아티팩트 수이고, 그중 휴지통에 있는 수는 `trashedCount`(있을 때만)다.
 - `--yes` 없이: `CONFIRMATION_REQUIRED`(exit 2).
 
 ## 경고 코드
@@ -198,7 +198,7 @@
 | `LIMIT_EXCEEDED` (5)        | 스키마·지침 64KB, 샘플 1MB, 화면 파일 10MB·전체 50MB·2,000개 초과     | `file`·`limit`·`actual`(정보 파일일 때)                  |
 | `SECRET_FILE` (2)           | `screen/`에 비밀 파일                                                 | `files`                                                  |
 | `CONFIRMATION_REQUIRED` (2) | `template rm`에 `--yes` 없음                                          | `hint`                                                   |
-| `TEMPLATE_IN_USE` (1)       | `template rm`인데 이 템플릿으로 만든 아티팩트가 있음                  | `artifactCount`·`hint`                                   |
+| `TEMPLATE_IN_USE` (1)       | `template rm`인데 이 템플릿으로 만든 아티팩트가 있음                  | `artifactCount`·`trashedCount`?·`hint`                   |
 
 이름 충돌 예:
 
